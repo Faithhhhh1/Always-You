@@ -78,19 +78,24 @@
   <script>
   document.body.addEventListener('click', () => {
     const music = document.getElementById('music');
-    music.currentTime = 38;
+
     music.volume = 0;
     music.play();
 
-    let v = 0;
-    const fade = setInterval(() => {
-      if (v < 1) {
-        v += 0.05;
-        music.volume = Math.min(v, 1);
-      } else {
-        clearInterval(fade);
-      }
-    }, 200);
+    setTimeout(() => {
+      music.currentTime = 38;
+
+      let v = 0;
+      const fade = setInterval(() => {
+        if (v < 1) {
+          v += 0.05;
+          music.volume = Math.min(v, 1);
+        } else {
+          clearInterval(fade);
+        }
+      }, 200);
+    }, 300);
+
   }, { once: true });
 </script>
 </body>
