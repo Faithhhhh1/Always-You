@@ -71,8 +71,7 @@
 
     <div class="play">Tap anywhere for sound</div>
 
-    <!-- ✅ AUDIO SOURCE IS NOW CORRECT -->
-   <audio id="music" src="song_v2.mp3" loop preload="auto"></audio>
+    <audio id="music" src="song_v2.mp3" loop preload="auto"></audio>
   </div>
 
   <script>
@@ -94,10 +93,7 @@
             }
           }, 200);
         }, 300);
-      }).catch(() => {
-        alert("Tap once more to start the music");
       });
-
     }, { once: true });
   </script>
 
