@@ -8,7 +8,7 @@
     body {
       margin: 0;
       background: #dcdcdc;
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -31,9 +31,9 @@
       opacity: 0;
       animation: fadeIn 2s forwards;
     }
-    img:nth-child(2) { animation-delay: 1s; }
-    img:nth-child(3) { animation-delay: 2s; }
-    img:nth-child(4) { animation-delay: 3s; }
+    img:nth-of-type(1) { animation-delay: 1s; }
+    img:nth-of-type(2) { animation-delay: 2s; }
+    img:nth-of-type(3) { animation-delay: 3s; }
 
     p {
       font-size: 18px;
@@ -55,6 +55,7 @@
   </style>
 </head>
 <body>
+
   <div class="container">
     <h1>I miss you.</h1>
 
@@ -70,33 +71,35 @@
 
     <div class="play">Tap anywhere for sound</div>
 
-    <audio id="music" loop>
-      <!-- song.mp3 will go here later -->
-    </audio>
+    <!-- ✅ AUDIO SOURCE IS NOW CORRECT -->
+    <audio id="music" src="song.mp3" loop></audio>
   </div>
 
   <script>
-  document.body.addEventListener('click', () => {
-    const music = document.getElementById('music');
+    document.body.addEventListener('click', () => {
+      const music = document.getElementById('music');
 
-    music.volume = 0;
-    music.play();
+      music.volume = 0;
+      music.play().then(() => {
+        setTimeout(() => {
+          music.currentTime = 38;
 
-    setTimeout(() => {
-      music.currentTime = 38;
+          let v = 0;
+          const fade = setInterval(() => {
+            if (v < 1) {
+              v += 0.05;
+              music.volume = Math.min(v, 1);
+            } else {
+              clearInterval(fade);
+            }
+          }, 200);
+        }, 300);
+      }).catch(() => {
+        alert("Tap once more to start the music");
+      });
 
-      let v = 0;
-      const fade = setInterval(() => {
-        if (v < 1) {
-          v += 0.05;
-          music.volume = Math.min(v, 1);
-        } else {
-          clearInterval(fade);
-        }
-      }, 200);
-    }, 300);
+    }, { once: true });
+  </script>
 
-  }, { once: true });
-</script>
 </body>
 </html>
