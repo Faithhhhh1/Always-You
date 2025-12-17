@@ -57,7 +57,7 @@ h1 {
   font-weight: normal;
 }
 
-/* IMAGES (scroll reveal) */
+/* IMAGES */
 img {
   width: 100%;
   border-radius: 14px;
@@ -113,6 +113,24 @@ p.show {
   color: #ddd;
 }
 
+/* REPLAY BUTTON */
+.replay-btn {
+  margin-top: 40px;
+  padding: 12px 28px;
+  font-size: 16px;
+  border: none;
+  border-radius: 30px;
+  background: rgba(255,255,255,0.85);
+  color: #000;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.replay-btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
 /* PLAY TEXT */
 .play {
   margin: 30px 0;
@@ -146,7 +164,6 @@ p.show {
   <img src="image1.jpg">
   <img src="image2.jpg">
   <img src="image3.jpg" class="special">
-
   <img src="image4.jpg">
   <img src="image5.jpg">
   <img src="image6.jpg">
@@ -158,13 +175,11 @@ p.show {
   <img src="image12.jpg">
   <img src="image13.jpg">
   <img src="image14.jpg" class="special">
-
   <img src="image15.jpg">
   <img src="image16.jpg">
   <img src="image17.jpg">
   <img src="image18.jpg">
   <img src="image19.jpg" class="special">
-
   <img src="image20.jpg">
   <img src="image21.jpg" class="special">
   <img src="image22.jpg">
@@ -178,12 +193,16 @@ p.show {
 
   <div class="ending">
     <div class="ending-text">
+      Two years.<br>
       A thousand moments.<br>
       Still choosing you.
     </div>
     <div class="ending-sub">
       Happy Anniversary ❤️
     </div>
+
+    <!-- UPDATED REPLAY TEXT -->
+    <button class="replay-btn" onclick="replay()">One more time?? ❤️</button>
   </div>
 
   <div class="play">Tap anywhere for sound</div>
@@ -193,9 +212,12 @@ p.show {
 
 <script>
 const music = document.getElementById("music");
+let observer;
+let heartsEnabled = false;
 
 /* MUSIC START */
-document.body.addEventListener("click", () => {
+function startMusic() {
+  heartsEnabled = true;
   music.currentTime = 38;
   music.volume = 0;
   music.play();
@@ -206,10 +228,14 @@ document.body.addEventListener("click", () => {
     music.volume = Math.min(v, 1);
     if (v >= 1) clearInterval(fade);
   }, 200);
-}, { once: true });
+}
+
+document.body.addEventListener("click", startMusic, { once: true });
 
 /* HEART CREATION */
 function createHeart(size, duration) {
+  if (!heartsEnabled) return;
+
   const heart = document.createElement("div");
   heart.className = "heart";
   heart.textContent = "❤️";
@@ -217,10 +243,10 @@ function createHeart(size, duration) {
   heart.style.fontSize = size + "px";
   heart.style.animationDuration = duration + "s";
   document.body.appendChild(heart);
+
   setTimeout(() => heart.remove(), duration * 1000);
 }
 
-/* BURSTS */
 function normalBurst() {
   createHeart(18, 4);
   if (Math.random() > 0.6) createHeart(16, 3.5);
@@ -234,26 +260,46 @@ function bigBurst() {
   }
 }
 
-/* SCROLL OBSERVER */
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("show");
+/* OBSERVER */
+function initObserver() {
+  observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
 
-      if (entry.target.classList.contains("special")) {
-        bigBurst();
-      } else {
-        normalBurst();
+        if (entry.target.classList.contains("special")) {
+          bigBurst();
+        } else {
+          normalBurst();
+        }
+
+        observer.unobserve(entry.target);
       }
+    });
+  }, { threshold: 0.4 });
 
-      observer.unobserve(entry.target);
-    }
+  document.querySelectorAll("img, p, .ending").forEach(el => {
+    observer.observe(el);
   });
-}, { threshold: 0.4 });
+}
 
-document.querySelectorAll("img, p, .ending").forEach(el => {
-  observer.observe(el);
-});
+initObserver();
+
+/* REPLAY */
+function replay() {
+  heartsEnabled = false;
+
+  document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
+
+  music.pause();
+  music.currentTime = 38;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  observer.disconnect();
+  setTimeout(() => initObserver(), 600);
+  setTimeout(() => startMusic(), 1200);
+}
 </script>
 
 </body>
