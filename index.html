@@ -34,7 +34,7 @@ body::after{
 
 /* CONTAINER */
 .container{
-  max-width:500px;
+  max-width:520px;
   padding:25px;
   background:rgba(255,255,255,.15);
   backdrop-filter:blur(6px);
@@ -50,21 +50,24 @@ h1{
   margin-bottom:30px;
 }
 
-/* PHOTO */
+/* PHOTOS */
 .photo{
   position:relative;
   margin-bottom:22px;
-  overflow:visible;
 }
 .photo img{
   width:100%;
   border-radius:14px;
   opacity:0;
   transform:translateY(30px);
-  animation:fadeIn 1.2s forwards;
+  transition:opacity 1.2s ease, transform 1.2s ease;
+}
+.photo.show img{
+  opacity:1;
+  transform:translateY(0);
 }
 
-/* BIG HEART */
+/* BIG GLOW HEART */
 .big-heart{
   position:absolute;
   left:50%;
@@ -73,55 +76,60 @@ h1{
   font-size:72px;
   opacity:0;
   pointer-events:none;
-  filter:drop-shadow(0 0 15px rgba(255,80,120,.8))
-         drop-shadow(0 0 40px rgba(255,80,120,.9));
+  filter:
+    drop-shadow(0 0 15px rgba(255,80,120,.8))
+    drop-shadow(0 0 40px rgba(255,80,120,1));
   animation:heartPop 1.2s forwards, glowPulse 1.2s;
   z-index:5;
 }
 
-/* SMALL HEARTS */
+/* SMALL HEARTS (FOUNTAIN + AMBIENT) */
 .small-heart{
-  position:absolute;
-  left:50%;
-  top:50%;
-  font-size:18px;
+  position:fixed;
+  font-size:16px;
   pointer-events:none;
-  animation:fountain 1.8s forwards ease-out;
-  z-index:4;
+  animation:fall 3s linear forwards;
+  opacity:.9;
+  z-index:10;
 }
 
 /* ENDING */
 .ending{
   margin-top:120px;
   opacity:0;
-  animation:fadeIn 3s forwards;
-  animation-delay:18s;
+  transform:translateY(20px);
+  transition:opacity 2s ease, transform 2s ease;
   color:#fff;
+}
+.ending.show{
+  opacity:1;
+  transform:translateY(0);
 }
 .replay{
   margin-top:28px;
-  opacity:0;
-  animation:fadeIn 2s forwards;
-  animation-delay:21s;
   font-size:18px;
   cursor:pointer;
+  opacity:0;
+  transition:opacity 2s ease;
 }
+.replay.show{ opacity:1; }
 
 /* ANIMATIONS */
-@keyframes fadeIn{
-  to{opacity:1;transform:translateY(0);}
-}
 @keyframes heartPop{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
   50%{opacity:1;transform:translate(-50%,-50%) scale(1.3);}
   100%{opacity:0;transform:translate(-50%,-50%) scale(1.6);}
 }
 @keyframes glowPulse{
-  50%{filter:drop-shadow(0 0 60px rgba(255,80,120,1));}
+  50%{
+    filter:
+      drop-shadow(0 0 30px rgba(255,80,120,1))
+      drop-shadow(0 0 70px rgba(255,80,120,1));
+  }
 }
-@keyframes fountain{
-  from{transform:translate(-50%,-50%) scale(1);opacity:1;}
-  to{transform:translate(calc(-50% + var(--x)),140px) scale(.6);opacity:0;}
+@keyframes fall{
+  from{transform:translateY(0);opacity:1;}
+  to{transform:translateY(110vh);opacity:0;}
 }
 </style>
 </head>
@@ -130,14 +138,15 @@ h1{
 
 <div class="container">
 <h1>I miss you.</h1>
+
 <div id="gallery"></div>
 
-<div class="ending">
+<div class="ending" id="ending">
   <div>Two years.<br>Still choosing you.</div>
   <div class="replay" id="replay">One more time?? ❤️</div>
 </div>
 
-<audio id="music" src="song_v2.mp3" loop preload="auto"></audio>
+<audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
 </div>
 
 <script>
@@ -145,10 +154,14 @@ const TOTAL = 23;
 const SPECIAL = [3,14,19,21];
 const gallery = document.getElementById("gallery");
 const music = document.getElementById("music");
-let observers = [];
-let musicStarted = false;
+const ending = document.getElementById("ending");
+const replay = document.getElementById("replay");
 
-/* CREATE PHOTOS */
+let musicStarted = false;
+let observers = [];
+let ambientInterval = null;
+
+/* BUILD GALLERY */
 function buildGallery(){
   gallery.innerHTML="";
   observers.forEach(o=>o.disconnect());
@@ -160,23 +173,24 @@ function buildGallery(){
     p.innerHTML=`<img src="image${i}.jpg">`;
     gallery.appendChild(p);
 
-    if(SPECIAL.includes(i)){
-      const obs=new IntersectionObserver(entries=>{
-        entries.forEach(e=>{
-          if(e.isIntersecting && musicStarted){
-            popHeart(p);
-            obs.disconnect();
-          }
-        });
-      },{threshold:.65});
-      obs.observe(p);
-      observers.push(obs);
-    }
+    const obs=new IntersectionObserver(e=>{
+      if(e[0].isIntersecting){
+        p.classList.add("show");
+
+        if(SPECIAL.includes(i) && musicStarted){
+          specialHeart(p);
+        }
+        obs.disconnect();
+      }
+    },{threshold:.6});
+
+    obs.observe(p);
+    observers.push(obs);
   }
 }
 
-/* HEART POP */
-function popHeart(photo){
+/* SPECIAL HEART */
+function specialHeart(photo){
   if(navigator.vibrate) navigator.vibrate(25);
 
   const big=document.createElement("div");
@@ -185,27 +199,44 @@ function popHeart(photo){
   photo.appendChild(big);
 
   setTimeout(()=>{
+    const rect=photo.getBoundingClientRect();
     for(let i=0;i<14;i++){
-      const h=document.createElement("div");
-      h.className="small-heart";
-      h.textContent="❤️";
-      h.style.setProperty("--x",`${(Math.random()-0.5)*140}px`);
-      photo.appendChild(h);
-      setTimeout(()=>h.remove(),1800);
+      setTimeout(()=>{
+        spawnHeart(rect.left+rect.width/2);
+      },i*80);
     }
   },500);
 
   setTimeout(()=>big.remove(),1200);
 }
 
-/* START MUSIC + ACTIVATE */
-document.body.addEventListener("click",()=>{
+/* AMBIENT HEARTS */
+function spawnHeart(x=null){
+  if(!musicStarted) return;
+  const h=document.createElement("div");
+  h.className="small-heart";
+  h.textContent="❤️";
+  h.style.left=(x ?? Math.random()*window.innerWidth)+"px";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),3000);
+}
+
+function startAmbient(){
+  ambientInterval=setInterval(()=>spawnHeart(),700);
+}
+function stopAmbient(){
+  clearInterval(ambientInterval);
+  document.querySelectorAll(".small-heart,.big-heart").forEach(e=>e.remove());
+}
+
+/* MUSIC START */
+function startExperience(){
   if(musicStarted) return;
+  musicStarted=true;
 
   music.currentTime=38;
   music.volume=0;
   music.play();
-  musicStarted=true;
 
   let v=0;
   const fade=setInterval(()=>{
@@ -214,18 +245,37 @@ document.body.addEventListener("click",()=>{
     if(v>=1) clearInterval(fade);
   },200);
 
+  startAmbient();
   buildGallery();
-},{once:true});
+}
+
+document.body.addEventListener("click", startExperience, {once:true});
+
+/* ENDING OBSERVER */
+new IntersectionObserver(e=>{
+  if(e[0].isIntersecting){
+    ending.classList.add("show");
+    setTimeout(()=>replay.classList.add("show"),1200);
+  }
+},{threshold:.6}).observe(ending);
 
 /* REPLAY */
-document.getElementById("replay").onclick=()=>{
+replay.onclick=()=>{
+  stopAmbient();
   music.pause();
   music.currentTime=0;
   musicStarted=false;
+
   window.scrollTo({top:0,behavior:"smooth"});
-  setTimeout(()=>buildGallery(),300);
+
+  setTimeout(()=>{
+    ending.classList.remove("show");
+    replay.classList.remove("show");
+    buildGallery();
+  },400);
 };
 
+/* INITIAL BUILD */
 buildGallery();
 </script>
 
