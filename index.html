@@ -13,11 +13,10 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: none;
       overflow-x: hidden;
     }
 
-    /* BLURRED BACKGROUND IMAGE */
+    /* BLURRED BACKGROUND */
     body::before {
       content: "";
       position: fixed;
@@ -28,7 +27,7 @@
       z-index: -2;
     }
 
-    /* DARK OVERLAY FOR READABILITY */
+    /* DARK OVERLAY */
     body::after {
       content: "";
       position: fixed;
@@ -38,19 +37,19 @@
     }
 
     .container {
-      max-width: 500px;
-      text-align: center;
+      max-width: 520px;
       padding: 25px;
+      text-align: center;
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(6px);
       border-radius: 18px;
     }
 
     h1 {
-      font-weight: normal;
+      color: #fff;
       letter-spacing: 2px;
       margin-bottom: 30px;
-      color: #fff;
+      font-weight: normal;
     }
 
     img {
@@ -64,27 +63,20 @@
 
     p {
       font-size: 18px;
-      margin-top: 30px;
       color: #fff;
+      margin-top: 30px;
       opacity: 0;
       animation: fadeIn 2s forwards;
       animation-delay: 15s;
     }
 
-    .play {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #eee;
-    }
-
-    /* FINAL ENDING SCREEN */
     .ending {
-      margin-top: 100px;
-      padding: 80px 20px;
+      margin-top: 90px;
+      padding: 60px 20px;
+      color: #fff;
       opacity: 0;
       animation: fadeIn 3s forwards;
       animation-delay: 18s;
-      color: #fff;
     }
 
     .ending-text {
@@ -99,6 +91,12 @@
       color: #ddd;
     }
 
+    .play {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #eee;
+    }
+
     @keyframes fadeIn {
       to { opacity: 1; }
     }
@@ -107,76 +105,72 @@
 
 <body>
 
-  <div class="container">
-    <h1>I miss you.</h1>
+<div class="container">
+  <h1>I miss you.</h1>
 
-    <img src="image1.jpg"  style="--i:1" />
-    <img src="image2.jpg"  style="--i:2" />
-    <img src="image3.jpg"  style="--i:3" />
-    <img src="image4.jpg"  style="--i:4" />
-    <img src="image5.jpg"  style="--i:5" />
-    <img src="image6.jpg"  style="--i:6" />
-    <img src="image7.jpg"  style="--i:7" />
-    <img src="image8.jpg"  style="--i:8" />
-    <img src="image9.jpg"  style="--i:9" />
-    <img src="image10.jpg" style="--i:10" />
-    <img src="image11.jpg" style="--i:11" />
-    <img src="image12.jpg" style="--i:12" />
-    <img src="image13.jpg" style="--i:13" />
-    <img src="image14.jpg" style="--i:14" />
-    <img src="image15.jpg" style="--i:15" />
-    <img src="image16.jpg" style="--i:16" />
-    <img src="image17.jpg" style="--i:17" />
-    <img src="image18.jpg" style="--i:18" />
-    <img src="image19.jpg" style="--i:19" />
-    <img src="image20.jpg" style="--i:20" />
-    <img src="image21.jpg" style="--i:21" />
-    <img src="image22.jpg" style="--i:22" />
-    <img src="image23.jpg" style="--i:23" />
+  <!-- IMAGES -->
+  <img src="image1.jpg" style="--i:1">
+  <img src="image2.jpg" style="--i:2">
+  <img src="image3.jpg" style="--i:3">
+  <img src="image4.jpg" style="--i:4">
+  <img src="image5.jpg" style="--i:5">
+  <img src="image6.jpg" style="--i:6">
+  <img src="image7.jpg" style="--i:7">
+  <img src="image8.jpg" style="--i:8">
+  <img src="image9.jpg" style="--i:9">
+  <img src="image10.jpg" style="--i:10">
+  <img src="image11.jpg" style="--i:11">
+  <img src="image12.jpg" style="--i:12">
+  <img src="image13.jpg" style="--i:13">
+  <img src="image14.jpg" style="--i:14">
+  <img src="image15.jpg" style="--i:15">
+  <img src="image16.jpg" style="--i:16">
+  <img src="image17.jpg" style="--i:17">
+  <img src="image18.jpg" style="--i:18">
+  <img src="image19.jpg" style="--i:19">
+  <img src="image20.jpg" style="--i:20">
+  <img src="image21.jpg" style="--i:21">
+  <img src="image22.jpg" style="--i:22">
+  <img src="image23.jpg" style="--i:23">
 
-    <p>
-      Two years.<br />
-      Still us.<br />
-      Always you.
-    </p>
+  <p>
+    Two years.<br>
+    Still us.<br>
+    Always you.
+  </p>
 
-    <!-- FINAL ENDING SCREEN -->
-    <div class="ending">
-      <div class="ending-text">
-        Two years.<br />
-        A thousand moments.<br />
-        Still choosing you.
-      </div>
-
-      <div class="ending-sub">
-        Happy Anniversary ❤️
-      </div>
+  <!-- FINAL ENDING -->
+  <div class="ending">
+    <div class="ending-text">
+      Two years.<br>
+      A thousand moments.<br>
+      Still choosing you.
     </div>
-
-    <div class="play">Tap anywhere for sound</div>
-
-    <audio id="music" src="song_v2.mp3" loop preload="auto"></audio>
+    <div class="ending-sub">
+      Happy Anniversary ❤️
+    </div>
   </div>
 
-  <script>
-    document.body.addEventListener('click', () => {
-      const music = document.getElementById('music');
+  <div class="play">Tap anywhere for sound</div>
 
-      music.currentTime = 38;
-      music.volume = 0;
-      music.play();
+  <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
+</div>
 
-      let v = 0;
-      const fade = setInterval(() => {
-        if (v < 1) {
-          v += 0.04;
-          music.volume = Math.min(v, 1);
-        } else {
-          clearInterval(fade);
-        }
-      }, 200);
-    }, { once: true });
-  </script>
+<script>
+  document.body.addEventListener('click', () => {
+    const music = document.getElementById('music');
+    music.currentTime = 38;
+    music.volume = 0;
+    music.play();
+
+    let v = 0;
+    const fade = setInterval(() => {
+      v += 0.04;
+      music.volume = Math.min(v, 1);
+      if (v >= 1) clearInterval(fade);
+    }, 200);
+  }, { once: true });
+</script>
 
 </body>
 </html>
