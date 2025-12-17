@@ -9,12 +9,11 @@
 body{
   margin:0;
   font-family:Arial,sans-serif;
-  display:flex;
-  justify-content:center;
+  min-height:100vh;
   overflow-x:hidden;
 }
 
-/* BACKGROUND */
+/* BLURRED BACKGROUND */
 body::before{
   content:"";
   position:fixed;
@@ -33,31 +32,33 @@ body::after{
 }
 
 .container{
-  max-width:520px;
+  max-width:500px;
+  margin:auto;
   padding:25px;
+  text-align:center;
   background:rgba(255,255,255,.15);
   backdrop-filter:blur(6px);
   border-radius:18px;
-  text-align:center;
 }
 
-h1{ color:#fff; letter-spacing:2px; }
-
-/* PHOTOS */
+/* IMAGES */
 .photo{
-  position:relative;
-  margin-bottom:24px;
-}
-.photo img{
   width:100%;
   border-radius:14px;
+  margin-bottom:20px;
   opacity:0;
-  transform:translateY(40px);
-  transition:opacity 1.3s ease, transform 1.3s ease;
+  transform:translateY(30px);
+  transition:opacity 1.2s ease, transform 1.2s ease;
+  position:relative;
 }
-.photo.show img{
+.photo.show{
   opacity:1;
-  transform:translateY(0);
+  transform:none;
+}
+
+/* FINAL PHOTO STRONGER GLOW */
+.photo.final{
+  box-shadow:0 0 30px rgba(255,90,138,.8);
 }
 
 /* BIG HEART */
@@ -65,243 +66,193 @@ h1{ color:#fff; letter-spacing:2px; }
   position:absolute;
   left:50%;
   top:50%;
-  transform:translate(-50%,-50%) scale(.3);
-  font-size:76px;
+  transform:translate(-50%,-50%) scale(.5);
+  font-size:80px;
   opacity:0;
+  filter:drop-shadow(0 0 18px rgba(255,90,138,1));
+  animation:bigPop 1.2s ease forwards;
   pointer-events:none;
-  filter:
-    drop-shadow(0 0 35px rgba(255,90,140,1))
-    drop-shadow(0 0 90px rgba(255,90,140,1));
-  animation:heartPop 1.2s forwards;
-  z-index:5;
 }
 
-/* SMALL HEARTS */
-.small-heart{
+@keyframes bigPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5);}
+  40%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.9);}
+}
+
+/* FOUNTAIN HEARTS */
+.fountain{
   position:absolute;
-  font-size:16px;
-  pointer-events:none;
-  opacity:1;
-  filter:
-    drop-shadow(0 0 10px rgba(255,120,160,.9))
-    drop-shadow(0 0 18px rgba(255,120,160,.6));
-  animation:rain 4.5s linear forwards;
-  z-index:4;
-}
-
-/* ENDING */
-.ending{
-  margin-top:120px;
-  opacity:0;
-  transform:translateY(30px);
-  transition:opacity 2s ease, transform 2s ease;
-  color:#fff;
-}
-.ending.show{
-  opacity:1;
-  transform:translateY(0);
-}
-.replay{
-  margin-top:28px;
+  left:50%;
+  top:50%;
   font-size:18px;
-  cursor:pointer;
-  opacity:0;
-  transition:opacity 2s ease;
-}
-.replay.show{ opacity:1; }
-
-/* ANIMATIONS */
-@keyframes heartPop{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
-  45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(1.8);}
+  filter:drop-shadow(0 0 6px rgba(255,90,138,.9));
+  animation:fountain 2.8s ease-out forwards;
+  pointer-events:none;
 }
 
-/* RANDOM RAIN */
+@keyframes fountain{
+  0%{transform:translate(0,0);opacity:1;}
+  30%{transform:translate(var(--x), -80px);}
+  100%{transform:translate(calc(var(--x)*1.4), 140px);opacity:0;}
+}
+
+/* AMBIENT FALLING HEARTS */
+.rain-heart{
+  position:fixed;
+  top:-40px;
+  color:#ff5a8a;
+  filter:drop-shadow(0 0 8px rgba(255,90,138,.9));
+  animation:rain linear forwards;
+  pointer-events:none;
+  z-index:999;
+}
+
 @keyframes rain{
-  0%{
-    transform:translate(var(--sx), -20px) rotate(var(--r));
-    opacity:1;
-  }
-  100%{
-    transform:translate(var(--ex), 260px) rotate(calc(var(--r) + 40deg));
+  to{
+    transform:translate(var(--drift),110vh) rotate(360deg);
     opacity:0;
   }
 }
+
+/* REPLAY */
+#replay{
+  margin:80px auto 40px;
+  font-size:18px;
+  color:#fff;
+  opacity:0;
+  transition:opacity 2s;
+  cursor:pointer;
+}
+#replay.show{opacity:1;}
+
 </style>
 </head>
 
 <body>
+
 <div class="container">
-<h1>I miss you.</h1>
 
-<div id="gallery"></div>
+<h1 style="color:#fff;">I miss you.</h1>
 
-<div class="ending" id="ending">
-  <div>Two years.<br> Still us.<br>Always you.</div>
-  <div class="replay" id="replay">One more time?? ❤️</div>
-</div>
+<!-- IMAGES -->
+<img src="image1.jpg" class="photo">
+<img src="image2.jpg" class="photo">
+<img src="image3.jpg" class="photo special">
+<img src="image4.jpg" class="photo">
+<img src="image5.jpg" class="photo">
+<img src="image6.jpg" class="photo">
+<img src="image7.jpg" class="photo">
+<img src="image8.jpg" class="photo">
+<img src="image9.jpg" class="photo">
+<img src="image10.jpg" class="photo">
+<img src="image11.jpg" class="photo">
+<img src="image12.jpg" class="photo">
+<img src="image13.jpg" class="photo">
+<img src="image14.jpg" class="photo special">
+<img src="image15.jpg" class="photo">
+<img src="image16.jpg" class="photo">
+<img src="image17.jpg" class="photo">
+<img src="image18.jpg" class="photo">
+<img src="image19.jpg" class="photo special">
+<img src="image20.jpg" class="photo">
+<img src="image21.jpg" class="photo special final">
+<img src="image22.jpg" class="photo">
+<img src="image23.jpg" class="photo">
 
-<audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
+<p style="color:#fff;">Two years.<br>Still us.<br>Always you.</p>
+
+<div id="replay">One more time?? ❤️</div>
+
+<audio id="music" src="song_v2.mp3" preload="auto"></audio>
+
 </div>
 
 <script>
-const TOTAL = 23;
-const SPECIAL = [3,14,19,21];
-const gallery = document.getElementById("gallery");
 const music = document.getElementById("music");
-const ending = document.getElementById("ending");
-const replay = document.getElementById("replay");
+let started=false, rainTimer=null;
 
-let observers = [];
-let musicStarted = false;
-
-/* ---------- BUILD ---------- */
-function build(){
-  gallery.innerHTML="";
-  observers.forEach(o=>o.disconnect());
-  observers=[];
-  musicStarted=false;
-
-  for(let i=1;i<=TOTAL;i++){
-    const p=document.createElement("div");
-    p.className="photo";
-    p.innerHTML=`<img src="image${i}.jpg">`;
-    gallery.appendChild(p);
-
-    const obs=new IntersectionObserver(e=>{
-      if(e[0].isIntersecting){
-        p.classList.add("show");
-        if(musicStarted && SPECIAL.includes(i)){
-          specialHeart(p);
-        }
+/* INTERSECTION OBSERVER */
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add("show");
+      if(started && e.target.classList.contains("special")){
+        specialHeart(e.target);
       }
-    },{threshold:.6});
+    }
+  });
+},{threshold:.6});
 
-    obs.observe(p);
-    observers.push(obs);
+document.querySelectorAll(".photo").forEach(p=>observer.observe(p));
+
+/* BIG HEART + FOUNTAIN */
+function specialHeart(el){
+  const heart=document.createElement("div");
+  heart.className="big-heart";
+  heart.textContent="❤️";
+  el.appendChild(heart);
+
+  if(navigator.vibrate) navigator.vibrate(60);
+
+  for(let i=0;i<18;i++){
+    const h=document.createElement("div");
+    h.className="fountain";
+    h.textContent="❤️";
+    h.style.setProperty("--x",(Math.random()*120-60)+"px");
+    el.appendChild(h);
+    setTimeout(()=>h.remove(),2800);
   }
+
+  setTimeout(()=>heart.remove(),1200);
 }
 
-/* ---------- BIG HEART + FOUNTAIN ---------- */
-function specialHeart(photo){
-  if(photo.dataset.done) return;
-  photo.dataset.done = "1";
-
-  if(navigator.vibrate) navigator.vibrate(25);
-
-  const rect = photo.getBoundingClientRect();
-  const centerX = rect.width / 2;
-  const centerY = rect.height / 2;
-
-  const big = document.createElement("div");
-  big.className = "big-heart";
-  big.textContent = "❤️";
-  photo.appendChild(big);
-
-  // Fountain burst
-  setTimeout(()=>{
-    for(let i=0;i<22;i++){
-      spawnFountainHeart(photo, centerX, centerY);
-    }
-  },300);
-
-  setTimeout(()=>big.remove(),1200);
-}
-
-/* ---------- FOUNTAIN HEART ---------- */
-function spawnFountainHeart(parent, cx, cy){
+/* AMBIENT HEART RAIN */
+function rain(){
   const h=document.createElement("div");
-  h.className="small-heart";
+  h.className="rain-heart";
   h.textContent="❤️";
-
-  const angle = (Math.random()*Math.PI) - Math.PI/2;
-  const distance = 80 + Math.random()*80;
-
-  const x = Math.cos(angle)*distance;
-  const y = Math.sin(angle)*distance - 40;
-
-  h.style.left = cx + "px";
-  h.style.top = cy + "px";
-
-  h.animate([
-    { transform:`translate(0,0) scale(1)`, opacity:1 },
-    { transform:`translate(${x}px,${y}px) scale(.9)`, opacity:.9 },
-    { transform:`translate(${x*1.3}px,${y+220}px) scale(.7)`, opacity:0 }
-  ],{
-    duration:2600 + Math.random()*600,
-    easing:"cubic-bezier(.2,.8,.2,1)"
-  });
-
-  parent.appendChild(h);
-  setTimeout(()=>h.remove(),3400);
+  h.style.left=Math.random()*100+"vw";
+  h.style.fontSize=(14+Math.random()*14)+"px";
+  h.style.animationDuration=(7+Math.random()*4)+"s";
+  h.style.setProperty("--drift",(Math.random()*160-80)+"px");
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),11000);
 }
 
-/* ---------- START (FAST) ---------- */
-function start(){
-  if(musicStarted) return;
-  musicStarted=true;
+function startRain(){
+  if(rainTimer) return;
+  rainTimer=setInterval(rain,600);
+}
+function stopRain(){
+  clearInterval(rainTimer);
+  rainTimer=null;
+  document.querySelectorAll(".rain-heart").forEach(h=>h.remove());
+}
 
-  // INSTANT audio unlock
-  music.currentTime = 38;
-  music.volume = 0;
+/* START ON FIRST TAP */
+document.body.addEventListener("click",()=>{
+  if(started) return;
+  started=true;
+  music.currentTime=38;
+  music.volume=1;
   music.play();
+  startRain();
+},{once:true});
 
-  let v=0;
-  const fade=setInterval(()=>{
-    v+=0.08;
-    music.volume=Math.min(v,1);
-    if(v>=1) clearInterval(fade);
-  },80);
+/* REPLAY */
+const replay=document.getElementById("replay");
+setTimeout(()=>replay.classList.add("show"),24000);
 
-  // Trigger visible specials immediately
-  document.querySelectorAll(".photo").forEach((p,i)=>{
-    if(p.getBoundingClientRect().top < window.innerHeight*0.7){
-      if(SPECIAL.includes(i+1)){
-        specialHeart(p);
-      }
-    }
-  });
-}
-
-/* ---------- TAP ---------- */
-function armStart(){
-  document.body.onclick = () => {
-    start();
-    document.body.onclick = null;
-  };
-}
-
-/* ---------- REPLAY ---------- */
 replay.onclick=()=>{
   music.pause();
   music.currentTime=0;
-
-  document.querySelectorAll(".small-heart,.big-heart").forEach(e=>e.remove());
-  document.querySelectorAll(".photo").forEach(p=>delete p.dataset.done);
-
-  ending.classList.remove("show");
-  replay.classList.remove("show");
-
+  stopRain();
+  started=false;
+  document.querySelectorAll(".photo").forEach(p=>p.classList.remove("show"));
   window.scrollTo({top:0,behavior:"smooth"});
-
-  setTimeout(()=>{
-    build();
-    armStart();
-  },400);
 };
-
-/* ---------- END OBSERVER ---------- */
-new IntersectionObserver(e=>{
-  if(e[0].isIntersecting){
-    ending.classList.add("show");
-    setTimeout(()=>replay.classList.add("show"),1200);
-  }
-},{threshold:.6}).observe(ending);
-
-/* ---------- INIT ---------- */
-build();
-armStart();
 </script>
+
 </body>
 </html>
