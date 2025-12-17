@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Always You</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body {
       margin: 0;
@@ -14,38 +15,34 @@
       align-items: center;
       min-height: 100vh;
     }
+
     .container {
       max-width: 500px;
       text-align: center;
       padding: 20px;
     }
+
     h1 {
       font-weight: normal;
       letter-spacing: 2px;
       margin-bottom: 30px;
     }
+
     img {
       width: 100%;
       border-radius: 12px;
       margin-bottom: 20px;
       opacity: 0;
-      animation: fadeIn 2s forwards;
+      animation: fadeIn 1.5s forwards;
+      animation-delay: calc(var(--i) * 0.6s);
     }
-   img {
-  width: 100%;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  opacity: 0;
-  animation: fadeIn 1.5s forwards;
-  animation-delay: calc(var(--i) * 0.6s);
-}
 
     p {
       font-size: 18px;
       margin-top: 30px;
       opacity: 0;
       animation: fadeIn 2s forwards;
-      animation-delay: 4s;
+      animation-delay: 15s;
     }
 
     @keyframes fadeIn {
@@ -59,37 +56,36 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="container">
     <h1>I miss you.</h1>
 
-<img src="image1.jpg" />
-<img src="image2.jpg" />
-<img src="image3.jpg" />
-<img src="image4.jpg" />
-<img src="image4.jpg" />
-<img src="image4.jpg" />
-<img src="image5.jpg" />
-<img src="image6.jpg" />
-<img src="image7.jpg" />
-<img src="image8.jpg" />
-<img src="image9.jpg" />
-<img src="image10.jpg" />
-<img src="image11.jpg" />
-<img src="image12.jpg" />
-<img src="image13.jpg" />
-<img src="image14.jpg" />
-<img src="image15.jpg" />
-<img src="image16.jpg" />
-<img src="image17.jpg" />
-<img src="image18.jpg" />
-<img src="image19.jpg" />
-<img src="image20.jpg" />
-<img src="image21.jpg" />
-<img src="image22.jpg" />
-<img src="image23.jpg" />
-    
+    <img src="image1.jpg"  style="--i:1" />
+    <img src="image2.jpg"  style="--i:2" />
+    <img src="image3.jpg"  style="--i:3" />
+    <img src="image4.jpg"  style="--i:4" />
+    <img src="image5.jpg"  style="--i:5" />
+    <img src="image6.jpg"  style="--i:6" />
+    <img src="image7.jpg"  style="--i:7" />
+    <img src="image8.jpg"  style="--i:8" />
+    <img src="image9.jpg"  style="--i:9" />
+    <img src="image10.jpg" style="--i:10" />
+    <img src="image11.jpg" style="--i:11" />
+    <img src="image12.jpg" style="--i:12" />
+    <img src="image13.jpg" style="--i:13" />
+    <img src="image14.jpg" style="--i:14" />
+    <img src="image15.jpg" style="--i:15" />
+    <img src="image16.jpg" style="--i:16" />
+    <img src="image17.jpg" style="--i:17" />
+    <img src="image18.jpg" style="--i:18" />
+    <img src="image19.jpg" style="--i:19" />
+    <img src="image20.jpg" style="--i:20" />
+    <img src="image21.jpg" style="--i:21" />
+    <img src="image22.jpg" style="--i:22" />
+    <img src="image23.jpg" style="--i:23" />
+
     <p>
       Two years.<br />
       Still us.<br />
@@ -102,24 +98,25 @@
   </div>
 
   <script>
-  document.body.addEventListener('click', () => {
-    const music = document.getElementById('music');
+    document.body.addEventListener('click', () => {
+      const music = document.getElementById('music');
 
-    music.currentTime = 38;
-    music.volume = 0;
+      music.currentTime = 38;
+      music.volume = 0;
+      music.play();
 
-    music.play();
+      let v = 0;
+      const fade = setInterval(() => {
+        if (v < 1) {
+          v += 0.04;
+          music.volume = Math.min(v, 1);
+        } else {
+          clearInterval(fade);
+        }
+      }, 200);
 
-    let v = 0;
-    const fade = setInterval(() => {
-      if (v < 1) {
-        v += 0.04;
-        music.volume = Math.min(v, 1);
-      } else {
-        clearInterval(fade);
-      }
-    }, 200);
-  }, { once: true });
-</script>
+    }, { once: true });
+  </script>
+
 </body>
 </html>
