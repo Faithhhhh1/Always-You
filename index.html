@@ -42,18 +42,17 @@ body::after{
   text-align:center;
 }
 
-/* TITLE */
 h1{
   color:#fff;
-  letter-spacing:2px;
   font-weight:normal;
+  letter-spacing:2px;
   margin-bottom:30px;
 }
 
 /* PHOTOS */
 .photo{
   position:relative;
-  margin-bottom:22px;
+  margin-bottom:24px;
 }
 .photo img{
   width:100%;
@@ -77,30 +76,26 @@ h1{
   opacity:0;
   pointer-events:none;
   filter:
-    drop-shadow(0 0 20px rgba(255,80,120,.9))
-    drop-shadow(0 0 50px rgba(255,80,120,1));
-  animation:heartPop 1.2s forwards, glowPulse 1.2s;
+    drop-shadow(0 0 25px rgba(255,80,120,1))
+    drop-shadow(0 0 70px rgba(255,80,120,1));
+  animation:heartPop 1.2s forwards;
   z-index:5;
 }
-
-/* EXTRA GLOW FOR FINAL PHOTO */
 .big-heart.final{
-  font-size:82px;
+  font-size:84px;
   filter:
-    drop-shadow(0 0 35px rgba(255,120,160,1))
-    drop-shadow(0 0 90px rgba(255,120,160,1));
-  animation:heartPop 1.4s forwards, glowPulseFinal 1.4s;
+    drop-shadow(0 0 50px rgba(255,120,160,1))
+    drop-shadow(0 0 120px rgba(255,120,160,1));
 }
 
 /* SMALL HEARTS */
 .small-heart{
   position:absolute;
-  left:50%;
-  top:50%;
   font-size:16px;
   pointer-events:none;
-  animation:fountain 2.4s cubic-bezier(.22,.61,.36,1) forwards;
   opacity:.95;
+  filter:drop-shadow(0 0 10px rgba(255,80,120,.8));
+  animation:fountain 2.6s cubic-bezier(.22,.61,.36,1) forwards;
   z-index:4;
 }
 
@@ -117,7 +112,7 @@ h1{
   transform:translateY(0);
 }
 .replay{
-  margin-top:28px;
+  margin-top:30px;
   font-size:18px;
   cursor:pointer;
   opacity:0;
@@ -131,32 +126,18 @@ h1{
   45%{opacity:1;transform:translate(-50%,-50%) scale(1.35);}
   100%{opacity:0;transform:translate(-50%,-50%) scale(1.7);}
 }
-@keyframes glowPulse{
-  50%{
-    filter:
-      drop-shadow(0 0 40px rgba(255,80,120,1))
-      drop-shadow(0 0 80px rgba(255,80,120,1));
-  }
-}
-@keyframes glowPulseFinal{
-  50%{
-    filter:
-      drop-shadow(0 0 70px rgba(255,120,160,1))
-      drop-shadow(0 0 140px rgba(255,120,160,1));
-  }
-}
 
-/* UPWARD THEN FALL */
+/* UP THEN FALL (FOUNTAIN) */
 @keyframes fountain{
   0%{
-    transform:translate(-50%,0) scale(1);
+    transform:translate(0,0) scale(1) rotate(0deg);
     opacity:1;
   }
   30%{
-    transform:translate(calc(-50% + var(--x)), -60px) scale(1.1);
+    transform:translate(var(--x), -70px) scale(1.1) rotate(var(--r));
   }
   100%{
-    transform:translate(calc(-50% + var(--x)), 180px) scale(.6);
+    transform:translate(var(--x), 200px) scale(.6) rotate(var(--r));
     opacity:0;
   }
 }
@@ -179,21 +160,20 @@ h1{
 </div>
 
 <script>
-const TOTAL = 23;
-const SPECIAL = [3,14,19,21];
-const FINAL_SPECIAL = 21;
+const TOTAL=23;
+const SPECIAL=[3,14,19,21];
+const FINAL=21;
 
-const gallery = document.getElementById("gallery");
-const music = document.getElementById("music");
-const ending = document.getElementById("ending");
-const replay = document.getElementById("replay");
+const gallery=document.getElementById("gallery");
+const music=document.getElementById("music");
+const ending=document.getElementById("ending");
+const replay=document.getElementById("replay");
 
 let musicStarted=false;
 let observers=[];
-let ambientInterval=null;
 
-/* BUILD */
-function buildGallery(){
+/* BUILD GALLERY */
+function build(){
   gallery.innerHTML="";
   observers.forEach(o=>o.disconnect());
   observers=[];
@@ -207,10 +187,9 @@ function buildGallery(){
     const obs=new IntersectionObserver(e=>{
       if(e[0].isIntersecting){
         p.classList.add("show");
-        if(SPECIAL.includes(i) && musicStarted){
-          specialHeart(p,i===FINAL_SPECIAL);
+        if(musicStarted && SPECIAL.includes(i)){
+          triggerSpecial(p,i===FINAL);
         }
-        obs.disconnect();
       }
     },{threshold:.6});
 
@@ -220,8 +199,8 @@ function buildGallery(){
 }
 
 /* SPECIAL HEART */
-function specialHeart(photo,isFinal){
-  if(navigator.vibrate) navigator.vibrate(25);
+function triggerSpecial(photo,isFinal){
+  if(navigator.vibrate) navigator.vibrate(20);
 
   const big=document.createElement("div");
   big.className="big-heart"+(isFinal?" final":"");
@@ -230,42 +209,23 @@ function specialHeart(photo,isFinal){
 
   setTimeout(()=>{
     for(let i=0;i<14;i++){
-      setTimeout(()=>{
-        const h=document.createElement("div");
-        h.className="small-heart";
-        h.textContent="❤️";
-        h.style.setProperty("--x",`${(Math.random()-0.5)*140}px`);
-        photo.appendChild(h);
-        setTimeout(()=>h.remove(),2400);
-      },i*90); // tighter rhythm
+      const h=document.createElement("div");
+      h.className="small-heart";
+      h.textContent="❤️";
+      h.style.left=(Math.random()*60+20)+"%";
+      h.style.top="50%";
+      h.style.setProperty("--x",(Math.random()-0.5)*160+"px");
+      h.style.setProperty("--r",(Math.random()-0.5)*60+"deg");
+      photo.appendChild(h);
+      setTimeout(()=>h.remove(),2600);
     }
-  },500);
+  },450);
 
   setTimeout(()=>big.remove(),1400);
 }
 
-/* AMBIENT HEARTS (BPM FEEL) */
-function spawnAmbient(){
-  if(!musicStarted) return;
-  const h=document.createElement("div");
-  h.className="small-heart";
-  h.textContent="❤️";
-  h.style.left=Math.random()*window.innerWidth+"px";
-  h.style.top="-20px";
-  h.style.setProperty("--x","0px");
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),2400);
-}
-function startAmbient(){
-  ambientInterval=setInterval(spawnAmbient,520); // rhythmic
-}
-function stopAmbient(){
-  clearInterval(ambientInterval);
-  document.querySelectorAll(".small-heart,.big-heart").forEach(e=>e.remove());
-}
-
 /* START */
-function startExperience(){
+function start(){
   if(musicStarted) return;
   musicStarted=true;
 
@@ -280,12 +240,21 @@ function startExperience(){
     if(v>=1) clearInterval(fade);
   },200);
 
-  startAmbient();
-  buildGallery();
+  // re-check visible photos
+  document.querySelectorAll(".photo").forEach(p=>{
+    if(p.getBoundingClientRect().top<window.innerHeight*0.7){
+      const index=[...gallery.children].indexOf(p)+1;
+      if(SPECIAL.includes(index)){
+        triggerSpecial(p,index===FINAL);
+      }
+    }
+  });
 }
-document.body.addEventListener("click",startExperience,{once:true});
 
-/* ENDING */
+/* FIRST TAP */
+document.body.addEventListener("click",start,{once:true});
+
+/* ENDING OBSERVER */
 new IntersectionObserver(e=>{
   if(e[0].isIntersecting){
     ending.classList.add("show");
@@ -295,23 +264,23 @@ new IntersectionObserver(e=>{
 
 /* REPLAY */
 replay.onclick=()=>{
-  stopAmbient();
   music.pause();
   music.currentTime=0;
   musicStarted=false;
+
+  document.querySelectorAll(".small-heart,.big-heart").forEach(e=>e.remove());
 
   window.scrollTo({top:0,behavior:"smooth"});
 
   setTimeout(()=>{
     ending.classList.remove("show");
     replay.classList.remove("show");
-    buildGallery();
+    build();
   },400);
 };
 
-buildGallery();
+build();
 </script>
 
 </body>
 </html>
-
