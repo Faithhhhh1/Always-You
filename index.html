@@ -125,6 +125,7 @@ h1{ color:#fff; letter-spacing:2px; }
 }
 .replay.show{ opacity:1; }
 
+/* ANIMATIONS */
 @keyframes heartPop{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
   45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
@@ -158,9 +159,9 @@ const music = document.getElementById("music");
 const ending = document.getElementById("ending");
 const replay = document.getElementById("replay");
 
-let musicStarted=false;
-let observers=[];
-let ambientInterval=null;
+let musicStarted = false;
+let observers = [];
+let ambientInterval = null;
 
 /* BUILD */
 function build(){
@@ -180,17 +181,16 @@ function build(){
       entries.forEach(e=>{
         if(e.isIntersecting){
           p.classList.add("show");
-          tryTriggerSpecial(p, i);
         }
       });
-    },{threshold:0.5});
+    },{threshold:0.4});
 
     obs.observe(p);
     observers.push(obs);
   }
 }
 
-/* CHECK + TRIGGER */
+/* CHECK CENTER + SPECIAL */
 function tryTriggerSpecial(photo, index){
   if(!musicStarted) return;
   if(!SPECIAL.includes(index)) return;
@@ -228,6 +228,7 @@ function specialHeart(photo){
   setTimeout(()=>big.remove(),1200);
 }
 
+/* FOUNTAIN */
 function spawnFountain(parent,cx,cy){
   const h=document.createElement("div");
   h.className="small-heart";
@@ -255,20 +256,25 @@ function startAmbient(){
     const h=document.createElement("div");
     h.className="ambient-heart";
     h.textContent="❤️";
-
     h.style.left=Math.random()*window.innerWidth+"px";
-    h.style.fontSize=(12+Math.random()*6)+"px";
-
     document.body.appendChild(h);
 
     h.animate([
       {transform:"translateY(0)"},
-      {transform:`translateY(${window.innerHeight+100}px)`}
+      {transform:`translateY(${window.innerHeight+120}px)`}
     ],{duration:5000,easing:"linear"});
 
     setTimeout(()=>h.remove(),5200);
   },BEAT);
 }
+
+/* SCROLL CHECK (CRITICAL FIX) */
+window.addEventListener("scroll", ()=>{
+  if(!musicStarted) return;
+  document.querySelectorAll(".photo").forEach((p,i)=>{
+    tryTriggerSpecial(p,i+1);
+  });
+},{passive:true});
 
 /* START */
 function start(){
@@ -288,9 +294,9 @@ function start(){
 
   startAmbient();
 
-  /* 🔥 CRITICAL FIX: re-check visible photos */
+  /* re-check immediately */
   document.querySelectorAll(".photo").forEach((p,i)=>{
-    tryTriggerSpecial(p, i+1);
+    tryTriggerSpecial(p,i+1);
   });
 }
 
