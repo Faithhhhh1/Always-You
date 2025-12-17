@@ -125,7 +125,6 @@ h1{ color:#fff; letter-spacing:2px; }
 }
 .replay.show{ opacity:1; }
 
-/* ANIMATIONS */
 @keyframes heartPop{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
   45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
@@ -177,29 +176,36 @@ function build(){
     p.innerHTML=`<img src="image${i}.jpg">`;
     gallery.appendChild(p);
 
-    const obs=new IntersectionObserver(e=>{
-      if(e[0].isIntersecting){
-        p.classList.add("show");
-
-        const rect = p.getBoundingClientRect();
-        const centerInView =
-          rect.top < window.innerHeight * 0.45 &&
-          rect.bottom > window.innerHeight * 0.55;
-
-        if (musicStarted && SPECIAL.includes(i) && centerInView){
-          specialHeart(p);
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          p.classList.add("show");
+          tryTriggerSpecial(p, i);
         }
-      }
-    },{threshold:.6});
+      });
+    },{threshold:0.5});
 
     obs.observe(p);
     observers.push(obs);
   }
 }
 
+/* CHECK + TRIGGER */
+function tryTriggerSpecial(photo, index){
+  if(!musicStarted) return;
+  if(!SPECIAL.includes(index)) return;
+  if(photo.dataset.done) return;
+
+  const rect = photo.getBoundingClientRect();
+  const center =
+    rect.top < window.innerHeight * 0.5 &&
+    rect.bottom > window.innerHeight * 0.5;
+
+  if(center) specialHeart(photo);
+}
+
 /* SPECIAL HEART */
 function specialHeart(photo){
-  if(photo.dataset.done) return;
   photo.dataset.done="1";
 
   if(navigator.vibrate) navigator.vibrate(15);
@@ -215,17 +221,14 @@ function specialHeart(photo){
 
   setTimeout(()=>{
     for(let i=0;i<26;i++){
-      setTimeout(()=>{
-        spawnFountainHeart(photo,cx,cy);
-      }, i * 30);
+      setTimeout(()=>spawnFountain(photo,cx,cy), i*30);
     }
   },300);
 
   setTimeout(()=>big.remove(),1200);
 }
 
-/* FOUNTAIN HEART */
-function spawnFountainHeart(parent,cx,cy){
+function spawnFountain(parent,cx,cy){
   const h=document.createElement("div");
   h.className="small-heart";
   h.textContent="❤️";
@@ -233,21 +236,14 @@ function spawnFountainHeart(parent,cx,cy){
   const angle=(Math.random()*Math.PI)-Math.PI/2;
   const dist=90+Math.random()*90;
 
-  const x=Math.cos(angle)*dist;
-  const y=Math.sin(angle)*dist-60;
-
   h.style.left=cx+"px";
   h.style.top=cy+"px";
-  h.style.color=`hsl(${330+Math.random()*40},80%,65%)`;
 
   h.animate([
-    {transform:"translate(0,0) scale(1)",opacity:1},
-    {transform:`translate(${x}px,${y}px) scale(.9)`},
-    {transform:`translate(${x*1.3}px,${y+260}px) scale(.7)`,opacity:0}
-  ],{
-    duration:2600+Math.random()*600,
-    easing:"cubic-bezier(.2,.8,.2,1)"
-  });
+    {transform:"translate(0,0)",opacity:1},
+    {transform:`translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist-60}px)`},
+    {transform:`translate(${Math.cos(angle)*dist*1.3}px,260px)`,opacity:0}
+  ],{duration:2600,easing:"cubic-bezier(.2,.8,.2,1)"});
 
   parent.appendChild(h);
   setTimeout(()=>h.remove(),3400);
@@ -260,26 +256,18 @@ function startAmbient(){
     h.className="ambient-heart";
     h.textContent="❤️";
 
-    const startX=Math.random()*window.innerWidth;
-    const drift=(Math.random()*120)-60;
-    const duration=5000+Math.random()*2000;
-
-    h.style.left=startX+"px";
+    h.style.left=Math.random()*window.innerWidth+"px";
     h.style.fontSize=(12+Math.random()*6)+"px";
-    h.style.color=`hsl(${330+Math.random()*30},80%,65%)`;
 
     document.body.appendChild(h);
 
     h.animate([
-      {transform:"translate(0,0)"},
-      {transform:`translate(${drift}px,${window.innerHeight+80}px)`}
-    ],{
-      duration,
-      easing:"linear"
-    });
+      {transform:"translateY(0)"},
+      {transform:`translateY(${window.innerHeight+100}px)`}
+    ],{duration:5000,easing:"linear"});
 
-    setTimeout(()=>h.remove(),duration);
-  },BEAT*0.9);
+    setTimeout(()=>h.remove(),5200);
+  },BEAT);
 }
 
 /* START */
@@ -299,6 +287,11 @@ function start(){
   },80);
 
   startAmbient();
+
+  /* 🔥 CRITICAL FIX: re-check visible photos */
+  document.querySelectorAll(".photo").forEach((p,i)=>{
+    tryTriggerSpecial(p, i+1);
+  });
 }
 
 /* TAP */
