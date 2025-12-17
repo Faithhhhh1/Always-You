@@ -8,29 +8,54 @@
   <style>
     body {
       margin: 0;
-      background: #dcdcdc;
       font-family: Arial, sans-serif;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      background: none;
+      overflow-x: hidden;
+    }
+
+    /* BLURRED BACKGROUND IMAGE */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("bg.jpg") center / cover no-repeat;
+      filter: blur(18px);
+      transform: scale(1.1);
+      z-index: -2;
+    }
+
+    /* DARK OVERLAY FOR READABILITY */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: -1;
     }
 
     .container {
       max-width: 500px;
       text-align: center;
-      padding: 20px;
+      padding: 25px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(6px);
+      border-radius: 18px;
     }
 
     h1 {
       font-weight: normal;
       letter-spacing: 2px;
       margin-bottom: 30px;
+      color: #fff;
     }
 
     img {
       width: 100%;
-      border-radius: 12px;
+      border-radius: 14px;
       margin-bottom: 20px;
       opacity: 0;
       animation: fadeIn 1.5s forwards;
@@ -40,19 +65,42 @@
     p {
       font-size: 18px;
       margin-top: 30px;
+      color: #fff;
       opacity: 0;
       animation: fadeIn 2s forwards;
       animation-delay: 15s;
     }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
     .play {
       margin-top: 20px;
       font-size: 14px;
-      color: #555;
+      color: #eee;
+    }
+
+    /* FINAL ENDING SCREEN */
+    .ending {
+      margin-top: 100px;
+      padding: 80px 20px;
+      opacity: 0;
+      animation: fadeIn 3s forwards;
+      animation-delay: 18s;
+      color: #fff;
+    }
+
+    .ending-text {
+      font-size: 22px;
+      line-height: 1.6;
+      letter-spacing: 1px;
+    }
+
+    .ending-sub {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #ddd;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
   </style>
 </head>
@@ -92,6 +140,19 @@
       Always you.
     </p>
 
+    <!-- FINAL ENDING SCREEN -->
+    <div class="ending">
+      <div class="ending-text">
+        Two years.<br />
+        A thousand moments.<br />
+        Still choosing you.
+      </div>
+
+      <div class="ending-sub">
+        Happy Anniversary ❤️
+      </div>
+    </div>
+
     <div class="play">Tap anywhere for sound</div>
 
     <audio id="music" src="song_v2.mp3" loop preload="auto"></audio>
@@ -114,7 +175,6 @@
           clearInterval(fade);
         }
       }, 200);
-
     }, { once: true });
   </script>
 
