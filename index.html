@@ -81,6 +81,17 @@ h1{ color:#fff; letter-spacing:2px; }
   z-index:5;
 }
 
+/* FOUNTAIN HEARTS */
+.small-heart{
+  position:absolute;
+  font-size:16px;
+  pointer-events:none;
+  filter:
+    drop-shadow(0 0 12px rgba(255,120,160,.9))
+    drop-shadow(0 0 20px rgba(255,120,160,.6));
+  z-index:4;
+}
+
 /* AMBIENT HEARTS */
 .ambient-heart{
   position:fixed;
@@ -91,17 +102,6 @@ h1{ color:#fff; letter-spacing:2px; }
     drop-shadow(0 0 10px rgba(255,120,160,.8))
     drop-shadow(0 0 18px rgba(255,120,160,.5));
   z-index:1;
-}
-
-/* FOUNTAIN HEARTS */
-.small-heart{
-  position:absolute;
-  font-size:16px;
-  pointer-events:none;
-  filter:
-    drop-shadow(0 0 12px rgba(255,120,160,.9))
-    drop-shadow(0 0 20px rgba(255,120,160,.6));
-  z-index:4;
 }
 
 /* ENDING */
@@ -180,7 +180,13 @@ function build(){
     const obs=new IntersectionObserver(e=>{
       if(e[0].isIntersecting){
         p.classList.add("show");
-        if(musicStarted && SPECIAL.includes(i)){
+
+        const rect = p.getBoundingClientRect();
+        const centerInView =
+          rect.top < window.innerHeight * 0.45 &&
+          rect.bottom > window.innerHeight * 0.55;
+
+        if (musicStarted && SPECIAL.includes(i) && centerInView){
           specialHeart(p);
         }
       }
@@ -196,7 +202,7 @@ function specialHeart(photo){
   if(photo.dataset.done) return;
   photo.dataset.done="1";
 
-  if(navigator.vibrate) navigator.vibrate(30);
+  if(navigator.vibrate) navigator.vibrate(15);
 
   const rect=photo.getBoundingClientRect();
   const cx=rect.width/2;
@@ -208,7 +214,11 @@ function specialHeart(photo){
   photo.appendChild(big);
 
   setTimeout(()=>{
-    for(let i=0;i<26;i++) spawnFountainHeart(photo,cx,cy);
+    for(let i=0;i<26;i++){
+      setTimeout(()=>{
+        spawnFountainHeart(photo,cx,cy);
+      }, i * 30);
+    }
   },300);
 
   setTimeout(()=>big.remove(),1200);
@@ -231,8 +241,8 @@ function spawnFountainHeart(parent,cx,cy){
   h.style.color=`hsl(${330+Math.random()*40},80%,65%)`;
 
   h.animate([
-    {transform:`translate(0,0) scale(1)`,opacity:1},
-    {transform:`translate(${x}px,${y}px) scale(.9)`,opacity:.9},
+    {transform:"translate(0,0) scale(1)",opacity:1},
+    {transform:`translate(${x}px,${y}px) scale(.9)`},
     {transform:`translate(${x*1.3}px,${y+260}px) scale(.7)`,opacity:0}
   ],{
     duration:2600+Math.random()*600,
@@ -261,7 +271,7 @@ function startAmbient(){
     document.body.appendChild(h);
 
     h.animate([
-      {transform:`translate(0,0)`},
+      {transform:"translate(0,0)"},
       {transform:`translate(${drift}px,${window.innerHeight+80}px)`}
     ],{
       duration,
@@ -289,12 +299,6 @@ function start(){
   },80);
 
   startAmbient();
-
-  document.querySelectorAll(".photo").forEach((p,i)=>{
-    if(p.getBoundingClientRect().top < window.innerHeight*.7){
-      if(SPECIAL.includes(i+1)) specialHeart(p);
-    }
-  });
 }
 
 /* TAP */
