@@ -11,7 +11,6 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   overflow-x: hidden;
@@ -27,8 +26,6 @@ body::before {
   transform: scale(1.1);
   z-index: -2;
 }
-
-/* DARK OVERLAY */
 body::after {
   content: "";
   position: fixed;
@@ -49,7 +46,6 @@ body::after {
   border-radius: 18px;
 }
 
-/* TITLE */
 h1 {
   color: #fff;
   letter-spacing: 2px;
@@ -57,7 +53,7 @@ h1 {
   font-weight: normal;
 }
 
-/* IMAGES */
+/* PHOTO */
 .photo-wrap {
   position: relative;
 }
@@ -76,38 +72,36 @@ img.show {
   transform: translateY(0);
 }
 
-/* CENTER HEART */
-.center-heart {
+/* BIG CENTER HEART */
+.big-heart {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.3);
+  font-size: 70px;
   opacity: 0;
+  animation: heartPop 1.2s forwards;
   pointer-events: none;
-  animation: popHeart 1.2s forwards;
 }
 
-@keyframes popHeart {
-  0%   { transform: scale(0.3); opacity: 0; }
-  40%  { transform: scale(1.3); opacity: 1; }
-  70%  { transform: scale(1); }
-  100% { transform: scale(0); opacity: 0; }
+@keyframes heartPop {
+  0%   { transform: translate(-50%,-50%) scale(0.3); opacity: 0; }
+  40%  { transform: translate(-50%,-50%) scale(1.4); opacity: 1; }
+  70%  { transform: translate(-50%,-50%) scale(1); }
+  100% { transform: translate(-50%,-50%) scale(0); opacity: 0; }
 }
 
-/* FALLING HEARTS */
-.fall-heart {
+/* SMALL HEARTS (FOUNTAIN) */
+.small-heart {
   position: fixed;
-  top: 0;
   font-size: 18px;
   animation: fall 3s linear forwards;
   pointer-events: none;
 }
 
 @keyframes fall {
-  0%   { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(110vh); opacity: 0; }
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(120vh); opacity: 0; }
 }
 
 /* TEXT */
@@ -119,7 +113,6 @@ p {
   transform: translateY(20px);
   transition: opacity 1.5s ease, transform 1.5s ease;
 }
-
 p.show { opacity: 1; transform: translateY(0); }
 
 /* ENDING */
@@ -131,24 +124,21 @@ p.show { opacity: 1; transform: translateY(0); }
   transform: translateY(20px);
   transition: opacity 2s ease, transform 2s ease;
 }
-
 .ending.show { opacity: 1; transform: translateY(0); }
 
 /* REPLAY */
 .replay-btn {
   margin-top: 40px;
-  padding: 12px 28px;
+  padding: 12px 30px;
   font-size: 16px;
   border: none;
   border-radius: 30px;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.9);
   cursor: pointer;
   opacity: 0;
-  transition: opacity 1.5s ease, transform 0.2s ease;
+  transition: opacity 2s ease, transform 0.2s ease;
 }
-
 .replay-btn.show { opacity: 1; }
-
 .replay-btn:hover { transform: scale(1.05); }
 </style>
 </head>
@@ -162,7 +152,6 @@ p.show { opacity: 1; transform: translateY(0); }
 <div class="photo-wrap"><img src="image1.jpg"></div>
 <div class="photo-wrap"><img src="image2.jpg"></div>
 <div class="photo-wrap special"><img src="image3.jpg"></div>
-
 <div class="photo-wrap"><img src="image4.jpg"></div>
 <div class="photo-wrap"><img src="image5.jpg"></div>
 <div class="photo-wrap"><img src="image6.jpg"></div>
@@ -174,13 +163,11 @@ p.show { opacity: 1; transform: translateY(0); }
 <div class="photo-wrap"><img src="image12.jpg"></div>
 <div class="photo-wrap"><img src="image13.jpg"></div>
 <div class="photo-wrap special"><img src="image14.jpg"></div>
-
 <div class="photo-wrap"><img src="image15.jpg"></div>
 <div class="photo-wrap"><img src="image16.jpg"></div>
 <div class="photo-wrap"><img src="image17.jpg"></div>
 <div class="photo-wrap"><img src="image18.jpg"></div>
 <div class="photo-wrap special"><img src="image19.jpg"></div>
-
 <div class="photo-wrap"><img src="image20.jpg"></div>
 <div class="photo-wrap special"><img src="image21.jpg"></div>
 <div class="photo-wrap"><img src="image22.jpg"></div>
@@ -215,51 +202,67 @@ document.body.addEventListener("click", () => {
   },200);
 },{ once:true });
 
-/* FALLING HEARTS */
-function fountain(x) {
+/* HEART FOUNTAIN FROM CENTER */
+function heartFountain(x, y) {
   if (!musicStarted) return;
-
   if (navigator.vibrate) navigator.vibrate(20);
 
-  for (let i=0;i<8;i++) {
+  for (let i = 0; i < 10; i++) {
     setTimeout(() => {
       const h = document.createElement("div");
-      h.className = "fall-heart";
+      h.className = "small-heart";
       h.textContent = "❤️";
-      h.style.left = x + (Math.random()*60-30) + "px";
+      h.style.left = x + (Math.random()*40 - 20) + "px";
+      h.style.top = y + "px";
       document.body.appendChild(h);
-      setTimeout(()=>h.remove(),3000);
-    }, i*100);
+      setTimeout(() => h.remove(), 3000);
+    }, i * 100);
   }
 }
 
 /* OBSERVER */
-const observer = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if (e.isIntersecting) {
-      const img = e.target.querySelector("img");
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target.querySelector("img");
       img.classList.add("show");
 
-      if (e.target.classList.contains("special") && musicStarted) {
+      if (entry.target.classList.contains("special") && musicStarted) {
         const heart = document.createElement("div");
-        heart.className = "center-heart";
+        heart.className = "big-heart";
         heart.textContent = "❤️";
-        e.target.appendChild(heart);
+        entry.target.appendChild(heart);
 
-        const rect = e.target.getBoundingClientRect();
-        setTimeout(()=>fountain(rect.left + rect.width/2),800);
+        const rect = entry.target.getBoundingClientRect();
+        setTimeout(() => {
+          heartFountain(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2
+          );
+        }, 600);
       }
 
-      observer.unobserve(e.target);
+      observer.unobserve(entry.target);
     }
   });
-},{ threshold:0.5 });
+},{ threshold: 0.5 });
 
-document.querySelectorAll(".photo-wrap").forEach(p=>observer.observe(p));
-observer.observe(document.querySelector(".ending"));
+document.querySelectorAll(".photo-wrap").forEach(p => observer.observe(p));
 
-/* REPLAY */
-document.querySelector(".replay-btn").onclick = ()=>{
+/* SHOW ENDING + REPLAY */
+const ending = document.querySelector(".ending");
+const replay = document.querySelector(".replay-btn");
+
+const endObserver = new IntersectionObserver(e=>{
+  if (e[0].isIntersecting) {
+    ending.classList.add("show");
+    setTimeout(()=>replay.classList.add("show"),1200);
+  }
+},{ threshold:0.6 });
+
+endObserver.observe(ending);
+
+replay.onclick = () => {
   if (navigator.vibrate) navigator.vibrate(30);
   location.reload();
 };
