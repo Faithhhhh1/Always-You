@@ -1,106 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Always You</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Always You</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
-    }
+<style>
+/* BASE */
+* { box-sizing: border-box; }
 
-    /* BLURRED BACKGROUND */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: url("bg.jpg") center / cover no-repeat;
-      filter: blur(18px);
-      transform: scale(1.1);
-      z-index: -2;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
+}
 
-    /* DARK OVERLAY */
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.35);
-      z-index: -1;
-    }
+/* BLURRED BACKGROUND */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url("bg.jpg") center / cover no-repeat;
+  filter: blur(18px);
+  transform: scale(1.1);
+  z-index: -2;
+}
 
-    .container {
-      max-width: 520px;
-      padding: 25px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(6px);
-      border-radius: 18px;
-    }
+/* DARK OVERLAY */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: -1;
+}
 
-    h1 {
-      color: #fff;
-      letter-spacing: 2px;
-      margin-bottom: 30px;
-      font-weight: normal;
-    }
+/* CONTAINER */
+.container {
+  max-width: 520px;
+  width: 100%;
+  margin-top: 40px;
+  padding: 25px;
+  text-align: center;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(6px);
+  border-radius: 18px;
+}
 
-    img {
-      width: 100%;
-      border-radius: 14px;
-      margin-bottom: 20px;
-      opacity: 0;
-      animation: fadeIn 1.5s forwards;
-      animation-delay: calc(var(--i) * 0.6s);
-    }
+/* TITLE */
+h1 {
+  color: #fff;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+  font-weight: normal;
+}
 
-    p {
-      font-size: 18px;
-      color: #fff;
-      margin-top: 30px;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      animation-delay: 15s;
-    }
+/* IMAGES — SCROLL ANIMATION */
+img {
+  width: 100%;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1.2s ease, transform 1.2s ease;
+}
 
-    .ending {
-      margin-top: 90px;
-      padding: 60px 20px;
-      color: #fff;
-      opacity: 0;
-      animation: fadeIn 3s forwards;
-      animation-delay: 18s;
-    }
+img.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-    .ending-text {
-      font-size: 22px;
-      line-height: 1.6;
-      letter-spacing: 1px;
-    }
+/* TEXT */
+p {
+  color: #fff;
+  font-size: 18px;
+  margin-top: 30px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
 
-    .ending-sub {
-      margin-top: 30px;
-      font-size: 18px;
-      color: #ddd;
-    }
+p.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-    .play {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #eee;
-    }
+/* ENDING */
+.ending {
+  margin-top: 100px;
+  padding: 80px 20px;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 2s ease, transform 2s ease;
+}
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-  </style>
+.ending.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ending-text {
+  font-size: 22px;
+  line-height: 1.6;
+}
+
+.ending-sub {
+  margin-top: 30px;
+  font-size: 18px;
+  color: #ddd;
+}
+
+/* PLAY TEXT */
+.play {
+  margin: 30px 0;
+  font-size: 14px;
+  color: #eee;
+}
+
+/* HEARTS */
+.heart {
+  position: fixed;
+  bottom: -20px;
+  font-size: 18px;
+  opacity: 0.8;
+  animation: floatUp 4s linear forwards;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 0.9; }
+  100% {
+    transform: translateY(-110vh) scale(1.6);
+    opacity: 0;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -109,29 +148,29 @@
   <h1>I miss you.</h1>
 
   <!-- IMAGES -->
-  <img src="image1.jpg" style="--i:1">
-  <img src="image2.jpg" style="--i:2">
-  <img src="image3.jpg" style="--i:3">
-  <img src="image4.jpg" style="--i:4">
-  <img src="image5.jpg" style="--i:5">
-  <img src="image6.jpg" style="--i:6">
-  <img src="image7.jpg" style="--i:7">
-  <img src="image8.jpg" style="--i:8">
-  <img src="image9.jpg" style="--i:9">
-  <img src="image10.jpg" style="--i:10">
-  <img src="image11.jpg" style="--i:11">
-  <img src="image12.jpg" style="--i:12">
-  <img src="image13.jpg" style="--i:13">
-  <img src="image14.jpg" style="--i:14">
-  <img src="image15.jpg" style="--i:15">
-  <img src="image16.jpg" style="--i:16">
-  <img src="image17.jpg" style="--i:17">
-  <img src="image18.jpg" style="--i:18">
-  <img src="image19.jpg" style="--i:19">
-  <img src="image20.jpg" style="--i:20">
-  <img src="image21.jpg" style="--i:21">
-  <img src="image22.jpg" style="--i:22">
-  <img src="image23.jpg" style="--i:23">
+  <img src="image1.jpg">
+  <img src="image2.jpg">
+  <img src="image3.jpg">
+  <img src="image4.jpg">
+  <img src="image5.jpg">
+  <img src="image6.jpg">
+  <img src="image7.jpg">
+  <img src="image8.jpg">
+  <img src="image9.jpg">
+  <img src="image10.jpg">
+  <img src="image11.jpg">
+  <img src="image12.jpg">
+  <img src="image13.jpg">
+  <img src="image14.jpg">
+  <img src="image15.jpg">
+  <img src="image16.jpg">
+  <img src="image17.jpg">
+  <img src="image18.jpg">
+  <img src="image19.jpg">
+  <img src="image20.jpg">
+  <img src="image21.jpg">
+  <img src="image22.jpg">
+  <img src="image23.jpg">
 
   <p>
     Two years.<br>
@@ -139,7 +178,6 @@
     Always you.
   </p>
 
-  <!-- FINAL ENDING -->
   <div class="ending">
     <div class="ending-text">
       Two years.<br>
@@ -157,19 +195,53 @@
 </div>
 
 <script>
-  document.body.addEventListener('click', () => {
-    const music = document.getElementById('music');
-    music.currentTime = 38;
-    music.volume = 0;
-    music.play();
+const music = document.getElementById("music");
 
-    let v = 0;
-    const fade = setInterval(() => {
+/* MUSIC START */
+document.body.addEventListener("click", () => {
+  music.currentTime = 38;
+  music.volume = 0;
+  music.play();
+
+  let v = 0;
+  const fade = setInterval(() => {
+    if (v < 1) {
       v += 0.04;
       music.volume = Math.min(v, 1);
-      if (v >= 1) clearInterval(fade);
-    }, 200);
-  }, { once: true });
+    } else clearInterval(fade);
+  }, 200);
+}, { once: true });
+
+/* HEART CREATION */
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.textContent = "❤️";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.animationDuration = (3 + Math.random() * 2) + "s";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 5000);
+}
+
+/* INTERSECTION OBSERVER */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("show");
+
+      // heart burst on reveal
+      createHeart();
+      if (Math.random() > 0.5) createHeart();
+
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.4 });
+
+/* OBSERVE ELEMENTS */
+document.querySelectorAll("img, p, .ending").forEach(el => {
+  observer.observe(el);
+});
 </script>
 
 </body>
