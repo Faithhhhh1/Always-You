@@ -52,37 +52,44 @@ h1{ color:#fff; letter-spacing:2px; }
   transform:translateY(40px);
   transition:opacity 1.3s ease, transform 1.3s ease;
 }
-.photo.show img{
-  opacity:1;
-  transform:translateY(0);
-}
+.photo.show img{ opacity:1; transform:translateY(0); }
+.photo.final img{ box-shadow:0 0 40px rgba(255,120,160,.9); }
 
-/* GLOW — SPECIAL (EXCEPT 21) + FINAL */
-.photo.special img,
-.photo.final img{
-  box-shadow:0 0 40px rgba(255,120,160,.9);
-}
-
-/* BIG HEART — SLOW */
+/* BIG HEART */
 .big-heart{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%) scale(.3);
-  font-size:78px;
+  font-size:80px;
   opacity:0;
   pointer-events:none;
   filter:
     drop-shadow(0 0 35px rgba(255,90,140,1))
     drop-shadow(0 0 90px rgba(255,90,140,1));
-  animation:heartPop 4s cubic-bezier(.18,.85,.2,1) forwards;
+  animation:heartPop 1.2s forwards;
   z-index:5;
+}
+
+/* HEART WAVES (NEW EFFECT) */
+.heart-wave{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  border:2px solid rgba(255,90,140,.55);
+  animation:wave 2.4s ease-out forwards;
+  pointer-events:none;
+  z-index:4;
 }
 
 /* SMALL HEARTS */
 .small-heart{
   position:absolute;
-  font-size:20px;
+  font-size:18px;
   pointer-events:none;
   z-index:5;
   filter:
@@ -94,7 +101,7 @@ h1{ color:#fff; letter-spacing:2px; }
 .ambient-heart{
   position:fixed;
   top:-30px;
-  font-size:16px;
+  font-size:14px;
   pointer-events:none;
   z-index:1;
   filter:drop-shadow(0 0 10px rgba(255,90,140,.9));
@@ -110,43 +117,17 @@ h1{ color:#fff; letter-spacing:2px; }
 .ending.show{ opacity:1; }
 #typedText{ white-space:pre-line; font-size:20px; }
 #since{ margin-top:12px; font-size:14px; opacity:.85; }
+#secret{ display:none; margin-top:28px; font-size:18px; color:#ffdbe8; }
 
-/* EASTER EGG */
-#secret{
-  display:none;
-  margin-top:26px;
-  font-size:18px;
-  color:#ffdbe8;
-  opacity:0;
-  transition:opacity 1.6s ease;
-}
-#secret.show{
-  display:block;
-  opacity:1;
-}
-
-/* HEART ANIMATION — PHASED */
 @keyframes heartPop{
-  0%{
-    opacity:0;
-    transform:translate(-50%,-50%) scale(.3);
-  }
-  25%{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1);
-  }
-  50%{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1);
-  }
-  75%{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1.1);
-  }
-  100%{
-    opacity:0;
-    transform:translate(-50%,-50%) scale(1.25);
-  }
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
+  45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.8);}
+}
+
+@keyframes wave{
+  0%{opacity:.8;transform:translate(-50%,-50%) scale(.6);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(6);}
 }
 </style>
 </head>
@@ -154,16 +135,14 @@ h1{ color:#fff; letter-spacing:2px; }
 <body>
 
 <div class="container">
-<h1>I love you..</h1>
+<h1>I love you.</h1>
 
 <div id="gallery"></div>
 
 <div class="ending" id="ending">
   <div id="typedText"></div>
   <div id="since"></div>
-  <div id="secret">
-    Thank you for finding me… that means everything to me..❤️
-  </div>
+  <div id="secret">Thank you for finding me… that means everything to me ❤️</div>
 </div>
 
 <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
@@ -173,7 +152,8 @@ h1{ color:#fff; letter-spacing:2px; }
 let started=false;
 const TOTAL=23;
 const SPECIAL=[3,14,19,21];
-const NO_GLOW=21;
+const BPM=72;
+const BEAT=60000/BPM;
 
 const gallery=document.getElementById("gallery");
 const music=document.getElementById("music");
@@ -190,10 +170,7 @@ function build(){
   for(let i=1;i<=TOTAL;i++){
     const p=document.createElement("div");
     p.className="photo";
-
-    if(SPECIAL.includes(i) && i!==NO_GLOW) p.classList.add("special");
     if(i===TOTAL) p.classList.add("final");
-
     p.innerHTML=`<img src="image${i}.jpg">`;
     gallery.appendChild(p);
 
@@ -203,37 +180,45 @@ function build(){
   }
 }
 
-/* SPECIAL HEART — PHASED TIMING */
+/* SPECIAL HEART */
 function trySpecial(photo,index){
   if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
 
   const r=photo.getBoundingClientRect();
-  const centered=r.top<innerHeight*0.45 && r.bottom>innerHeight*0.55;
-  if(!centered) return;
-
-  photo.dataset.done=1;
+  const center=r.top<innerHeight*.5 && r.bottom>innerHeight*.5;
+  if(!center) return;
 
   setTimeout(()=>{
+    if(photo.dataset.done) return;
+    photo.dataset.done=1;
+
+    if(navigator.vibrate) navigator.vibrate(15);
+
     const big=document.createElement("div");
     big.className="big-heart";
     big.textContent="❤️";
     photo.appendChild(big);
 
-    /* PHASE 1 — HEART STAYS (1s) */
+    /* WAVES */
+    for(let i=0;i<3;i++){
+      setTimeout(()=>{
+        const w=document.createElement("div");
+        w.className="heart-wave";
+        photo.appendChild(w);
+        setTimeout(()=>w.remove(),2400);
+      },i*180);
+    }
+
     setTimeout(()=>{
-      /* PHASE 2 — FOUNTAIN (0.9s) */
-      for(let i=0;i<14;i++){
-        setTimeout(()=>spawnFountain(photo), i*70);
+      for(let i=0;i<26;i++){
+        setTimeout(()=>spawnFountain(photo),i*30);
       }
-    },900);
+    },300);
 
-    /* PHASE 3 — AFTER CALM (remove at 2s total) */
-    setTimeout(()=>big.remove(),2000);
-
-  },400);
+    setTimeout(()=>big.remove(),1200);
+  },150);
 }
 
-/* FOUNTAIN HEART */
 function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
@@ -242,22 +227,33 @@ function spawnFountain(parent){
   h.style.top="50%";
 
   const a=(Math.random()*Math.PI)-Math.PI/2;
-  const d=60+Math.random()*60;
+  const d=90+Math.random()*90;
 
   h.animate([
     {transform:"translate(0,0)",opacity:1},
-    {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-40}px)`},
-    {transform:`translate(${Math.cos(a)*d*1.1}px,220px)`,opacity:0}
-  ],{
-    duration:2000,
-    easing:"cubic-bezier(.25,.6,.2,1)"
-  });
+    {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-60}px)`},
+    {transform:`translate(${Math.cos(a)*d*1.3}px,260px)`,opacity:0}
+  ],{duration:2600,easing:"cubic-bezier(.2,.8,.2,1)"});
 
   parent.appendChild(h);
-  setTimeout(()=>h.remove(),2200);
+  setTimeout(()=>h.remove(),3400);
 }
 
-/* TYPEWRITER */
+/* AMBIENT */
+function startAmbient(){
+  setInterval(()=>{
+    if(!started) return;
+    const h=document.createElement("div");
+    h.className="ambient-heart";
+    h.textContent="❤️";
+    h.style.left=Math.random()*innerWidth+"px";
+    document.body.appendChild(h);
+    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5000});
+    setTimeout(()=>h.remove(),5200);
+  },BEAT);
+}
+
+/* TYPE */
 const lines=["Two years.","Still us.","Always you."];
 let li=0,ci=0;
 function typeNext(){
@@ -266,7 +262,7 @@ function typeNext(){
   ci++;
   if(ci>lines[li].length){
     typedText.innerHTML+="\n";
-    li++; ci=0;
+    li++;ci=0;
     setTimeout(typeNext,600);
   }else setTimeout(typeNext,70);
 }
@@ -292,11 +288,11 @@ function start(){
 
   let v=0;
   const fade=setInterval(()=>{
-    v+=0.08;
-    music.volume=Math.min(v,1);
+    v+=0.08; music.volume=Math.min(v,1);
     if(v>=1) clearInterval(fade);
   },80);
 
+  startAmbient();
   updateSince();
   setInterval(updateSince,1000);
 
@@ -309,14 +305,18 @@ window.addEventListener("scroll",()=>{
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 },{passive:true});
 
-/* EASTER EGG */
+/* Easter eggs */
+let pressTimer=null;
+document.body.addEventListener("touchstart",()=>{
+  pressTimer=setTimeout(()=>secret.style.display="block",3000);
+});
+document.body.addEventListener("touchend",()=>clearTimeout(pressTimer));
+
 document.addEventListener("dblclick",e=>{
-  if(e.target.closest(".photo.final")){
-    secret.classList.add("show");
-  }
+  if(e.target.closest(".photo.final")) secret.style.display="block";
 });
 
-/* ENDING */
+/* Ending */
 new IntersectionObserver(e=>{
   if(e[0].isIntersecting){
     ending.classList.add("show");
@@ -324,7 +324,6 @@ new IntersectionObserver(e=>{
   }
 },{threshold:.6}).observe(ending);
 
-/* INIT */
 build();
 </script>
 </body>
