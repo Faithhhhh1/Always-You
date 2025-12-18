@@ -30,6 +30,7 @@ body::after{
   inset:0;
   background:rgba(0,0,0,.35);
   z-index:-1;
+  transition:opacity .6s ease;
 }
 
 .container{
@@ -44,10 +45,7 @@ body::after{
 h1{ color:#fff; letter-spacing:2px; }
 
 /* PHOTOS */
-.photo{
-  position:relative;
-  margin-bottom:26px;
-}
+.photo{ position:relative; margin-bottom:26px; }
 .photo img{
   width:100%;
   border-radius:14px;
@@ -55,15 +53,8 @@ h1{ color:#fff; letter-spacing:2px; }
   transform:translateY(40px);
   transition:opacity 1.3s ease, transform 1.3s ease;
 }
-.photo.show img{
-  opacity:1;
-  transform:translateY(0);
-}
-
-/* FINAL PHOTO STRONG GLOW */
-.photo.final img{
-  box-shadow:0 0 40px rgba(255,120,160,.9);
-}
+.photo.show img{ opacity:1; transform:translateY(0); }
+.photo.final img{ box-shadow:0 0 40px rgba(255,120,160,.9); }
 
 /* BIG HEART */
 .big-heart{
@@ -81,51 +72,31 @@ h1{ color:#fff; letter-spacing:2px; }
   z-index:5;
 }
 
-/* FOUNTAIN HEARTS */
-.small-heart{
-  position:absolute;
-  font-size:16px;
-  pointer-events:none;
-  filter:
-    drop-shadow(0 0 12px rgba(255,120,160,.9))
-    drop-shadow(0 0 20px rgba(255,120,160,.6));
-  z-index:4;
-}
+.small-heart{ position:absolute; font-size:16px; pointer-events:none; z-index:4; }
+.ambient-heart{ position:fixed; top:-30px; font-size:14px; pointer-events:none; z-index:1; }
 
-/* AMBIENT HEARTS */
-.ambient-heart{
+/* OVERLAY */
+.overlay{
   position:fixed;
-  top:-30px;
-  font-size:14px;
-  pointer-events:none;
-  filter:
-    drop-shadow(0 0 10px rgba(255,120,160,.8))
-    drop-shadow(0 0 18px rgba(255,120,160,.5));
-  z-index:1;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  z-index:999;
+  padding:30px;
+  font-size:18px;
 }
 
 /* ENDING */
-.ending{
-  margin-top:120px;
-  opacity:0;
-  transform:translateY(30px);
-  transition:opacity 2s ease, transform 2s ease;
-  color:#fff;
-}
-.ending.show{
-  opacity:1;
-  transform:translateY(0);
-}
-.replay{
-  margin-top:28px;
-  font-size:18px;
-  cursor:pointer;
-  opacity:0;
-  transition:opacity 2s ease;
-}
-.replay.show{ opacity:1; }
+.ending{ margin-top:120px; opacity:0; transition:opacity 2s ease; color:#fff; }
+.ending.show{ opacity:1; }
+#typedText{ white-space:pre-line; font-size:20px; }
+#since{ margin-top:12px; font-size:14px; opacity:.85; }
+#secret{ display:none; margin-top:28px; font-size:18px; color:#ffdbe8; }
 
-/* ANIMATIONS */
 @keyframes heartPop{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
   45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
@@ -135,41 +106,47 @@ h1{ color:#fff; letter-spacing:2px; }
 </head>
 
 <body>
+
+<div class="overlay" id="overlay"></div>
+
 <div class="container">
 <h1>I miss you.</h1>
 
 <div id="gallery"></div>
 
 <div class="ending" id="ending">
-  <div>Two years.<br>Still us.<br>Always you.</div>
-  <div class="replay" id="replay">One more time?? ❤️</div>
+  <div id="typedText"></div>
+  <div id="since"></div>
+  <div id="secret">You found this… and that means everything ❤️</div>
 </div>
 
 <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
 </div>
 
 <script>
+/* ================= CORE STATE ================= */
+let started = false;
 const TOTAL = 23;
 const SPECIAL = [3,14,19,21];
 const BPM = 72;
 const BEAT = 60000 / BPM;
 
+/* ================= ELEMENTS ================= */
 const gallery = document.getElementById("gallery");
 const music = document.getElementById("music");
+const overlay = document.getElementById("overlay");
 const ending = document.getElementById("ending");
-const replay = document.getElementById("replay");
+const typedText = document.getElementById("typedText");
+const sinceEl = document.getElementById("since");
+const secret = document.getElementById("secret");
 
-let musicStarted = false;
-let observers = [];
-let ambientInterval = null;
+/* ================= DATE SETUP ================= */
+const unlockTime = new Date("2023-12-19T00:00:00");
+const sinceDate  = new Date("2023-12-19T22:10:00");
 
-/* BUILD */
+/* ================= BUILD PHOTOS ================= */
 function build(){
   gallery.innerHTML="";
-  observers.forEach(o=>o.disconnect());
-  observers=[];
-  musicStarted=false;
-
   for(let i=1;i<=TOTAL;i++){
     const p=document.createElement("div");
     p.className="photo";
@@ -177,109 +154,109 @@ function build(){
     p.innerHTML=`<img src="image${i}.jpg">`;
     gallery.appendChild(p);
 
-    const obs=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
-          p.classList.add("show");
-        }
-      });
-    },{threshold:0.4});
-
-    obs.observe(p);
-    observers.push(obs);
+    new IntersectionObserver(e=>{
+      if(e[0].isIntersecting) p.classList.add("show");
+    },{threshold:.4}).observe(p);
   }
 }
 
-/* CHECK CENTER + SPECIAL */
-function tryTriggerSpecial(photo, index){
-  if(!musicStarted) return;
-  if(!SPECIAL.includes(index)) return;
-  if(photo.dataset.done) return;
+/* ================= SPECIAL HEART ================= */
+function trySpecial(photo,index){
+  if(!started || photo.dataset.done || !SPECIAL.includes(index)) return;
 
-  const rect = photo.getBoundingClientRect();
-  const center =
-    rect.top < window.innerHeight * 0.5 &&
-    rect.bottom > window.innerHeight * 0.5;
+  const r=photo.getBoundingClientRect();
+  if(r.top < innerHeight*.5 && r.bottom > innerHeight*.5){
+    photo.dataset.done=1;
+    if(navigator.vibrate) navigator.vibrate(15);
 
-  if(center) specialHeart(photo);
+    const big=document.createElement("div");
+    big.className="big-heart";
+    big.textContent="❤️";
+    photo.appendChild(big);
+
+    setTimeout(()=>{
+      for(let i=0;i<26;i++){
+        setTimeout(()=>spawnFountain(photo), i*30);
+      }
+    },300);
+
+    setTimeout(()=>big.remove(),1200);
+  }
 }
 
-/* SPECIAL HEART */
-function specialHeart(photo){
-  photo.dataset.done="1";
-
-  if(navigator.vibrate) navigator.vibrate(15);
-
-  const rect=photo.getBoundingClientRect();
-  const cx=rect.width/2;
-  const cy=rect.height/2;
-
-  const big=document.createElement("div");
-  big.className="big-heart";
-  big.textContent="❤️";
-  photo.appendChild(big);
-
-  setTimeout(()=>{
-    for(let i=0;i<26;i++){
-      setTimeout(()=>spawnFountain(photo,cx,cy), i*30);
-    }
-  },300);
-
-  setTimeout(()=>big.remove(),1200);
-}
-
-/* FOUNTAIN */
-function spawnFountain(parent,cx,cy){
+function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
   h.textContent="❤️";
+  h.style.left="50%";
+  h.style.top="50%";
 
-  const angle=(Math.random()*Math.PI)-Math.PI/2;
-  const dist=90+Math.random()*90;
-
-  h.style.left=cx+"px";
-  h.style.top=cy+"px";
+  const a=(Math.random()*Math.PI)-Math.PI/2;
+  const d=90+Math.random()*90;
 
   h.animate([
     {transform:"translate(0,0)",opacity:1},
-    {transform:`translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist-60}px)`},
-    {transform:`translate(${Math.cos(angle)*dist*1.3}px,260px)`,opacity:0}
+    {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-60}px)`},
+    {transform:`translate(${Math.cos(a)*d*1.3}px,260px)`,opacity:0}
   ],{duration:2600,easing:"cubic-bezier(.2,.8,.2,1)"});
 
   parent.appendChild(h);
   setTimeout(()=>h.remove(),3400);
 }
 
-/* AMBIENT HEARTS */
+/* ================= AMBIENT HEARTS ================= */
 function startAmbient(){
-  ambientInterval=setInterval(()=>{
+  setInterval(()=>{
+    if(!started) return;
     const h=document.createElement("div");
     h.className="ambient-heart";
     h.textContent="❤️";
-    h.style.left=Math.random()*window.innerWidth+"px";
+    h.style.left=Math.random()*innerWidth+"px";
     document.body.appendChild(h);
-
-    h.animate([
-      {transform:"translateY(0)"},
-      {transform:`translateY(${window.innerHeight+120}px)`}
-    ],{duration:5000,easing:"linear"});
-
+    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5000});
     setTimeout(()=>h.remove(),5200);
   },BEAT);
 }
 
-/* SCROLL CHECK (CRITICAL FIX) */
-window.addEventListener("scroll", ()=>{
-  if(!musicStarted) return;
-  document.querySelectorAll(".photo").forEach((p,i)=>{
-    tryTriggerSpecial(p,i+1);
-  });
-},{passive:true});
+/* ================= BREATHING ================= */
+function startBreathing(){
+  let dim=false;
+  setInterval(()=>{
+    document.body.style.setProperty("--pulse", dim?".35":".45");
+    dim=!dim;
+  },BEAT);
+}
 
-/* START */
-function start(){
-  if(musicStarted) return;
-  musicStarted=true;
+/* ================= TYPEWRITER ================= */
+const lines=["Two years.","Still us.","Always you."];
+let li=0,ci=0;
+function typeNext(){
+  if(li>=lines.length) return;
+  typedText.innerHTML+=lines[li][ci]||"";
+  ci++;
+  if(ci>lines[li].length){
+    typedText.innerHTML+="\n";
+    li++; ci=0;
+    setTimeout(typeNext,600);
+  }else setTimeout(typeNext,70);
+}
+
+/* ================= SINCE COUNTER ================= */
+function updateSince(){
+  const d=Math.floor((Date.now()-sinceDate)/1000);
+  const days=Math.floor(d/86400);
+  const h=Math.floor(d%86400/3600);
+  const m=Math.floor(d%3600/60);
+  const s=d%60;
+  sinceEl.innerText=`Since Dec 19, 2023 10:10 PM — ${days}d ${h}:${m}:${s}`;
+}
+
+/* ================= START EXPERIENCE ================= */
+function startExperience(){
+  if(started) return;
+  started=true;
+
+  overlay.style.display="none";
 
   music.currentTime=38;
   music.volume=0;
@@ -287,53 +264,55 @@ function start(){
 
   let v=0;
   const fade=setInterval(()=>{
-    v+=0.08;
-    music.volume=Math.min(v,1);
+    v+=0.08; music.volume=Math.min(v,1);
     if(v>=1) clearInterval(fade);
   },80);
 
   startAmbient();
+  startBreathing();
+  updateSince();
+  setInterval(updateSince,1000);
 
-  /* re-check immediately */
-  document.querySelectorAll(".photo").forEach((p,i)=>{
-    tryTriggerSpecial(p,i+1);
-  });
+  document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 }
 
-/* TAP */
-document.body.onclick=()=>{
-  start();
-  document.body.onclick=null;
-};
+/* ================= LOCK + INTRO ================= */
+function initOverlay(){
+  if(new Date()<unlockTime){
+    overlay.innerText="Not yet… come back at midnight ❤️";
+  }else{
+    overlay.innerText="Put on your earphones.\nTap anywhere.";
+  }
+}
+initOverlay();
 
-/* REPLAY */
-replay.onclick=()=>{
-  music.pause();
-  music.currentTime=0;
-  clearInterval(ambientInterval);
+/* ================= EVENTS ================= */
+document.body.addEventListener("click",()=>{
+  if(new Date()<unlockTime) return;
+  startExperience();
+},{once:true});
 
-  document.querySelectorAll(".ambient-heart,.small-heart,.big-heart").forEach(e=>e.remove());
-  document.querySelectorAll(".photo").forEach(p=>delete p.dataset.done);
+window.addEventListener("scroll",()=>{
+  if(!started) return;
+  document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
+},{passive:true});
 
-  ending.classList.remove("show");
-  replay.classList.remove("show");
+/* Easter eggs */
+let pressTimer=null;
+document.body.addEventListener("touchstart",()=>{
+  pressTimer=setTimeout(()=>secret.style.display="block",3000);
+});
+document.body.addEventListener("touchend",()=>clearTimeout(pressTimer));
 
-  window.scrollTo({top:0,behavior:"smooth"});
+document.addEventListener("dblclick",e=>{
+  if(e.target.closest(".photo.final")) secret.style.display="block";
+});
 
-  setTimeout(()=>{
-    build();
-    document.body.onclick=()=>{
-      start();
-      document.body.onclick=null;
-    };
-  },400);
-};
-
-/* END OBSERVER */
+/* Ending observer */
 new IntersectionObserver(e=>{
   if(e[0].isIntersecting){
     ending.classList.add("show");
-    setTimeout(()=>replay.classList.add("show"),1200);
+    typeNext();
   }
 },{threshold:.6}).observe(ending);
 
