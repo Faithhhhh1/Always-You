@@ -55,7 +55,7 @@ h1{ color:#fff; letter-spacing:2px; }
 .photo.show img{ opacity:1; transform:translateY(0); }
 .photo.final img{ box-shadow:0 0 40px rgba(255,120,160,.9); }
 
-/* BIG HEART — SLOW */
+/* BIG HEART */
 .big-heart{
   position:absolute;
   left:50%;
@@ -69,6 +69,24 @@ h1{ color:#fff; letter-spacing:2px; }
     drop-shadow(0 0 90px rgba(255,90,140,1));
   animation:heartPop 3.2s cubic-bezier(.18,.75,.2,1) forwards;
   z-index:5;
+}
+
+/* INITIAL C */
+.initial{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(.6);
+  font-size:68px;
+  font-weight:600;
+  opacity:0;
+  color:#ffdbe8;
+  pointer-events:none;
+  filter:
+    drop-shadow(0 0 20px rgba(255,140,170,.9))
+    drop-shadow(0 0 50px rgba(255,140,170,.8));
+  animation:initialFade 3.8s ease forwards;
+  z-index:6;
 }
 
 /* SMALL HEARTS */
@@ -103,24 +121,19 @@ h1{ color:#fff; letter-spacing:2px; }
 #typedText{ white-space:pre-line; font-size:20px; }
 #since{ margin-top:12px; font-size:14px; opacity:.85; }
 
-/* HEART ANIMATION — SLOW & HELD */
+/* ANIMATIONS */
 @keyframes heartPop{
-  0%{
-    opacity:0;
-    transform:translate(-50%,-50%) scale(.25);
-  }
-  30%{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1.05);
-  }
-  65%{
-    opacity:1;
-    transform:translate(-50%,-50%) scale(1.18);
-  }
-  100%{
-    opacity:0;
-    transform:translate(-50%,-50%) scale(1.45);
-  }
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.25);}
+  30%{opacity:1;transform:translate(-50%,-50%) scale(1.05);}
+  65%{opacity:1;transform:translate(-50%,-50%) scale(1.18);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.45);}
+}
+
+@keyframes initialFade{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.6);}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  70%{opacity:1;}
+  100%{opacity:0;transform:translate(-50%,-60%) scale(1.05);}
 }
 </style>
 </head>
@@ -171,7 +184,7 @@ function build(){
   }
 }
 
-/* HEART */
+/* SPECIAL HEART */
 function trySpecial(photo,index){
   if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
 
@@ -186,14 +199,28 @@ function trySpecial(photo,index){
   photo.appendChild(big);
 
   setTimeout(()=>{
-    for(let i=0;i<20;i++){
-      setTimeout(()=>spawnFountain(photo), i*45);
+    if(photo.classList.contains("final")){
+      showInitial(photo);
+    }else{
+      for(let i=0;i<20;i++){
+        setTimeout(()=>spawnFountain(photo), i*45);
+      }
     }
-  },900);
+  },1100);
 
-  setTimeout(()=>big.remove(),3400);
+  setTimeout(()=>big.remove(),3300);
 }
 
+/* INITIAL C */
+function showInitial(photo){
+  const c=document.createElement("div");
+  c.className="initial";
+  c.textContent="C";
+  photo.appendChild(c);
+  setTimeout(()=>c.remove(),4200);
+}
+
+/* FOUNTAIN */
 function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
