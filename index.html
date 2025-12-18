@@ -37,7 +37,7 @@ body::after{
   max-width:520px;
   padding:25px;
   background:rgba(255,255,255,.15);
-  backdrop-filter:blur(5px);
+  backdrop-filter:blur(6px);
   border-radius:18px;
   text-align:center;
 }
@@ -79,9 +79,9 @@ h1{ color:#fff; letter-spacing:2px; }
   pointer-events:none;
   z-index:5;
   filter:
-    drop-shadow(0 0 40px rgba(255,90,140,1))
-    drop-shadow(0 0 80px rgba(255,90,140,3))
-    drop-shadow(0 0 150px rgba(255,90,140,5));
+    drop-shadow(0 0 10px rgba(255,90,140,1))
+    drop-shadow(0 0 18px rgba(255,90,140,3))
+    drop-shadow(0 0 26px rgba(255,90,140,5));
 }
 
 /* AMBIENT HEARTS — BLACK GLOW */
@@ -92,9 +92,9 @@ h1{ color:#fff; letter-spacing:2px; }
   pointer-events:none;
   z-index:1;
   filter:
-    drop-shadow(0 0 40px rgba(250,90,140,1.9))
-    drop-shadow(0 0 90px rgba(250,90,140,3.9))
-    drop-shadow(0 0 120px rgba(250,90,140,6.9));
+    drop-shadow(0 0 10px rgba(255,90,140,1))
+    drop-shadow(0 0 18px rgba(255,90,140,3))
+    drop-shadow(0 0 26px rgba(255,90,140,5));
 }
 
 /* ENDING */
@@ -127,7 +127,7 @@ h1{ color:#fff; letter-spacing:2px; }
 <div class="ending" id="ending">
   <div id="typedText"></div>
   <div id="since"></div>
-  <div id="secret">Thankyou for finding & loving me… that means everything ❤️</div>
+  <div id="secret">I found you… and that means everything ❤️</div>
 </div>
 
 <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
@@ -202,8 +202,8 @@ function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
   h.textContent="❤️";
-  h.style.left="51%";
-  h.style.top="49%";
+  h.style.left="50%";
+  h.style.top="50%";
 
   const a=(Math.random()*Math.PI)-Math.PI/2;
   const d=90+Math.random()*90;
@@ -326,4 +326,3 @@ build();
 </script>
 </body>
 </html>
-this one is fine
