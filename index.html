@@ -57,13 +57,13 @@ h1{ color:#fff; letter-spacing:2px; }
   transform:translateY(0);
 }
 
-/* GLOW FOR SPECIAL + FINAL */
+/* GLOW — SPECIAL (EXCEPT 21) + FINAL */
 .photo.special img,
 .photo.final img{
   box-shadow:0 0 40px rgba(255,120,160,.9);
 }
 
-/* BIG HEART — SLOWER */
+/* BIG HEART — SLOW & SOFT */
 .big-heart{
   position:absolute;
   left:50%;
@@ -75,7 +75,7 @@ h1{ color:#fff; letter-spacing:2px; }
   filter:
     drop-shadow(0 0 35px rgba(255,90,140,1))
     drop-shadow(0 0 90px rgba(255,90,140,1));
-  animation:heartPop 2.4s cubic-bezier(.2,.7,.2,1) forwards;
+  animation:heartPop 3.6s cubic-bezier(.18,.85,.2,1) forwards;
   z-index:5;
 }
 
@@ -118,19 +118,19 @@ h1{ color:#fff; letter-spacing:2px; }
   font-size:18px;
   color:#ffdbe8;
   opacity:0;
-  transition:opacity 1.5s ease;
+  transition:opacity 1.6s ease;
 }
 #secret.show{
   display:block;
   opacity:1;
 }
 
-/* HEART ANIMATION */
+/* SLOW HEART ANIMATION */
 @keyframes heartPop{
   0%   {opacity:0; transform:translate(-50%,-50%) scale(.25);}
-  35%  {opacity:1; transform:translate(-50%,-50%) scale(1.05);}
-  70%  {opacity:1; transform:translate(-50%,-50%) scale(1.25);}
-  100% {opacity:0; transform:translate(-50%,-50%) scale(1.5);}
+  30%  {opacity:1; transform:translate(-50%,-50%) scale(.95);}
+  65%  {opacity:1; transform:translate(-50%,-50%) scale(1.15);}
+  100% {opacity:0; transform:translate(-50%,-50%) scale(1.35);}
 }
 </style>
 </head>
@@ -145,7 +145,9 @@ h1{ color:#fff; letter-spacing:2px; }
 <div class="ending" id="ending">
   <div id="typedText"></div>
   <div id="since"></div>
-  <div id="secret">Thank you for finding me… that means everything to me!</div>
+  <div id="secret">
+    Thank you for finding me… that means everything to me!
+  </div>
 </div>
 
 <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
@@ -155,6 +157,7 @@ h1{ color:#fff; letter-spacing:2px; }
 let started=false;
 const TOTAL=23;
 const SPECIAL=[3,14,19,21];
+const NO_GLOW=21;
 const BPM=72;
 const BEAT=60000/BPM;
 
@@ -173,8 +176,10 @@ function build(){
   for(let i=1;i<=TOTAL;i++){
     const p=document.createElement("div");
     p.className="photo";
-    if(SPECIAL.includes(i)) p.classList.add("special");
+
+    if(SPECIAL.includes(i) && i!==NO_GLOW) p.classList.add("special");
     if(i===TOTAL) p.classList.add("final");
+
     p.innerHTML=`<img src="image${i}.jpg">`;
     gallery.appendChild(p);
 
@@ -184,12 +189,12 @@ function build(){
   }
 }
 
-/* SPECIAL HEART — CENTER + 0.40s DELAY */
+/* SPECIAL HEART */
 function trySpecial(photo,index){
   if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
 
   const r=photo.getBoundingClientRect();
-  const centered = r.top < innerHeight*0.45 && r.bottom > innerHeight*0.55;
+  const centered=r.top<innerHeight*0.45 && r.bottom>innerHeight*0.55;
   if(!centered) return;
 
   photo.dataset.done=1;
@@ -201,10 +206,10 @@ function trySpecial(photo,index){
     photo.appendChild(big);
 
     setTimeout(()=>{
-      for(let i=0;i<18;i++) spawnFountain(photo);
-    },900);
+      for(let i=0;i<16;i++) spawnFountain(photo);
+    },1100);
 
-    setTimeout(()=>big.remove(),2600);
+    setTimeout(()=>big.remove(),3600);
   },400);
 }
 
@@ -217,16 +222,16 @@ function spawnFountain(parent){
   h.style.top="50%";
 
   const a=(Math.random()*Math.PI)-Math.PI/2;
-  const d=80+Math.random()*80;
+  const d=70+Math.random()*80;
 
   h.animate([
     {transform:"translate(0,0)",opacity:1},
     {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-60}px)`},
     {transform:`translate(${Math.cos(a)*d*1.2}px,260px)`,opacity:0}
-  ],{duration:2600,easing:"cubic-bezier(.2,.8,.2,1)"});
+  ],{duration:2800,easing:"cubic-bezier(.2,.8,.2,1)"});
 
   parent.appendChild(h);
-  setTimeout(()=>h.remove(),3000);
+  setTimeout(()=>h.remove(),3200);
 }
 
 /* AMBIENT */
@@ -238,8 +243,8 @@ function startAmbient(){
     h.textContent="💖";
     h.style.left=Math.random()*innerWidth+"px";
     document.body.appendChild(h);
-    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5000});
-    setTimeout(()=>h.remove(),5200);
+    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5200});
+    setTimeout(()=>h.remove(),5400);
   },BEAT);
 }
 
@@ -278,7 +283,8 @@ function start(){
 
   let v=0;
   const fade=setInterval(()=>{
-    v+=0.08; music.volume=Math.min(v,1);
+    v+=0.08;
+    music.volume=Math.min(v,1);
     if(v>=1) clearInterval(fade);
   },80);
 
@@ -289,14 +295,13 @@ function start(){
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 }
 
-/* EVENTS */
 document.body.addEventListener("click",start,{once:true});
 window.addEventListener("scroll",()=>{
   if(!started) return;
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 },{passive:true});
 
-/* EASTER EGG — DOUBLE TAP FINAL PHOTO */
+/* EASTER EGG */
 document.addEventListener("dblclick",e=>{
   if(e.target.closest(".photo.final")){
     secret.classList.add("show");
