@@ -63,19 +63,19 @@ h1{ color:#fff; letter-spacing:2px; }
   box-shadow:0 0 40px rgba(255,120,160,.9);
 }
 
-/* BIG HEART — SLOW & SOFT */
+/* BIG HEART — SLOW */
 .big-heart{
   position:absolute;
   left:50%;
   top:50%;
-  transform:translate(-50%,-50%) scale(.25);
+  transform:translate(-50%,-50%) scale(.3);
   font-size:78px;
   opacity:0;
   pointer-events:none;
   filter:
     drop-shadow(0 0 35px rgba(255,90,140,1))
     drop-shadow(0 0 90px rgba(255,90,140,1));
-  animation:heartPop 3.6s cubic-bezier(.18,.85,.2,1) forwards;
+  animation:heartPop 4s cubic-bezier(.18,.85,.2,1) forwards;
   z-index:5;
 }
 
@@ -125,12 +125,28 @@ h1{ color:#fff; letter-spacing:2px; }
   opacity:1;
 }
 
-/* SLOW HEART ANIMATION */
+/* HEART ANIMATION — PHASED */
 @keyframes heartPop{
-  0%   {opacity:0; transform:translate(-50%,-50%) scale(.25);}
-  30%  {opacity:1; transform:translate(-50%,-50%) scale(.95);}
-  65%  {opacity:1; transform:translate(-50%,-50%) scale(1.15);}
-  100% {opacity:0; transform:translate(-50%,-50%) scale(1.35);}
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.3);
+  }
+  25%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+  50%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+  75%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.1);
+  }
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(1.25);
+  }
 }
 </style>
 </head>
@@ -158,8 +174,6 @@ let started=false;
 const TOTAL=23;
 const SPECIAL=[3,14,19,21];
 const NO_GLOW=21;
-const BPM=72;
-const BEAT=60000/BPM;
 
 const gallery=document.getElementById("gallery");
 const music=document.getElementById("music");
@@ -189,7 +203,7 @@ function build(){
   }
 }
 
-/* SPECIAL HEART */
+/* SPECIAL HEART — PHASED TIMING */
 function trySpecial(photo,index){
   if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
 
@@ -205,15 +219,21 @@ function trySpecial(photo,index){
     big.textContent="❤️";
     photo.appendChild(big);
 
+    /* PHASE 1 — HEART STAYS (2s) */
     setTimeout(()=>{
-      for(let i=0;i<16;i++) spawnFountain(photo);
-    },1100);
+      /* PHASE 2 — FOUNTAIN (1s) */
+      for(let i=0;i<14;i++){
+        setTimeout(()=>spawnFountain(photo), i*70);
+      }
+    },2000);
 
-    setTimeout(()=>big.remove(),3600);
+    /* PHASE 3 — AFTER CALM (remove at 4s total) */
+    setTimeout(()=>big.remove(),4000);
+
   },400);
 }
 
-/* FOUNTAIN */
+/* FOUNTAIN HEART */
 function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
@@ -222,33 +242,22 @@ function spawnFountain(parent){
   h.style.top="50%";
 
   const a=(Math.random()*Math.PI)-Math.PI/2;
-  const d=70+Math.random()*80;
+  const d=60+Math.random()*60;
 
   h.animate([
     {transform:"translate(0,0)",opacity:1},
-    {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-60}px)`},
-    {transform:`translate(${Math.cos(a)*d*1.2}px,260px)`,opacity:0}
-  ],{duration:2800,easing:"cubic-bezier(.2,.8,.2,1)"});
+    {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-40}px)`},
+    {transform:`translate(${Math.cos(a)*d*1.1}px,220px)`,opacity:0}
+  ],{
+    duration:2000,
+    easing:"cubic-bezier(.25,.6,.2,1)"
+  });
 
   parent.appendChild(h);
-  setTimeout(()=>h.remove(),3200);
+  setTimeout(()=>h.remove(),2200);
 }
 
-/* AMBIENT */
-function startAmbient(){
-  setInterval(()=>{
-    if(!started) return;
-    const h=document.createElement("div");
-    h.className="ambient-heart";
-    h.textContent="💖";
-    h.style.left=Math.random()*innerWidth+"px";
-    document.body.appendChild(h);
-    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5200});
-    setTimeout(()=>h.remove(),5400);
-  },BEAT);
-}
-
-/* TYPE */
+/* TYPEWRITER */
 const lines=["Two years.","Still us.","Always you."];
 let li=0,ci=0;
 function typeNext(){
@@ -288,7 +297,6 @@ function start(){
     if(v>=1) clearInterval(fade);
   },80);
 
-  startAmbient();
   updateSince();
   setInterval(updateSince,1000);
 
@@ -316,6 +324,7 @@ new IntersectionObserver(e=>{
   }
 },{threshold:.6}).observe(ending);
 
+/* INIT */
 build();
 </script>
 </body>
