@@ -82,7 +82,7 @@ h1{ color:#fff; letter-spacing:2px; }
 /* SMALL HEARTS */
 .small-heart{
   position:absolute;
-  font-size:18px;
+  font-size:20px;
   pointer-events:none;
   z-index:5;
   filter:
@@ -94,7 +94,7 @@ h1{ color:#fff; letter-spacing:2px; }
 .ambient-heart{
   position:fixed;
   top:-30px;
-  font-size:14px;
+  font-size:16px;
   pointer-events:none;
   z-index:1;
   filter:drop-shadow(0 0 10px rgba(255,90,140,.9));
@@ -154,7 +154,7 @@ h1{ color:#fff; letter-spacing:2px; }
 <body>
 
 <div class="container">
-<h1>I love you.</h1>
+<h1>I love you..</h1>
 
 <div id="gallery"></div>
 
@@ -162,7 +162,7 @@ h1{ color:#fff; letter-spacing:2px; }
   <div id="typedText"></div>
   <div id="since"></div>
   <div id="secret">
-    Thank you for finding me… that means everything to me!
+    Thank you for finding me… that means everything to me..❤️
   </div>
 </div>
 
@@ -219,16 +219,16 @@ function trySpecial(photo,index){
     big.textContent="❤️";
     photo.appendChild(big);
 
-    /* PHASE 1 — HEART STAYS (2s) */
+    /* PHASE 1 — HEART STAYS (1s) */
     setTimeout(()=>{
-      /* PHASE 2 — FOUNTAIN (1s) */
+      /* PHASE 2 — FOUNTAIN (0.9s) */
       for(let i=0;i<14;i++){
         setTimeout(()=>spawnFountain(photo), i*70);
       }
-    },2000);
+    },900);
 
-    /* PHASE 3 — AFTER CALM (remove at 4s total) */
-    setTimeout(()=>big.remove(),4000);
+    /* PHASE 3 — AFTER CALM (remove at 2s total) */
+    setTimeout(()=>big.remove(),2000);
 
   },400);
 }
