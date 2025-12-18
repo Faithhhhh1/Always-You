@@ -61,7 +61,7 @@ h1{ color:#fff; letter-spacing:2px; }
   left:50%;
   top:50%;
   transform:translate(-50%,-50%) scale(.3);
-  font-size:80px;
+  font-size:65px;
   opacity:0;
   pointer-events:none;
   filter:
@@ -101,10 +101,10 @@ h1{ color:#fff; letter-spacing:2px; }
 .ambient-heart{
   position:fixed;
   top:-30px;
-  font-size:14px;
+  font-size:16px;
   pointer-events:none;
   z-index:1;
-  filter:drop-shadow(0 0 10px rgba(255,90,140,.9));
+  filter:drop-shadow(0 0 10px rgba(255,100,140,1.9));
 }
 
 /* ENDING */
@@ -135,14 +135,14 @@ h1{ color:#fff; letter-spacing:2px; }
 <body>
 
 <div class="container">
-<h1>I love you.</h1>
+<h1>Happy two years together.</h1>
 
 <div id="gallery"></div>
 
 <div class="ending" id="ending">
   <div id="typedText"></div>
   <div id="since"></div>
-  <div id="secret">Thank you for finding me… that means everything to me ❤️</div>
+  <div id="secret">“Thank you for finding me… I’m really glad it was you ❤️”</div>
 </div>
 
 <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
@@ -243,14 +243,30 @@ function spawnFountain(parent){
 function startAmbient(){
   setInterval(()=>{
     if(!started) return;
-    const h=document.createElement("div");
-    h.className="ambient-heart";
-    h.textContent="❤️";
-    h.style.left=Math.random()*innerWidth+"px";
+
+    const h = document.createElement("div");
+    h.className = "ambient-heart";
+    h.textContent = "❤️";
+    h.style.left = Math.random() * innerWidth + "px";
     document.body.appendChild(h);
-    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5000});
-    setTimeout(()=>h.remove(),5200);
-  },BEAT);
+
+    const tilt = (Math.random() * 12 - 6).toFixed(1);
+
+    h.animate(
+      [
+        { transform: `translateY(0) rotate(${tilt}deg)` },
+        { transform: `translateY(${innerHeight + 120}px) rotate(${-tilt}deg)` }
+      ],
+      {
+        duration: 5000,
+        easing: "linear"
+      }
+    );
+
+    // ✅ cleanup (important)
+    setTimeout(() => h.remove(), 5200);
+
+  }, BEAT);
 }
 
 /* TYPE */
