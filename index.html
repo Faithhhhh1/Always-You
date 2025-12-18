@@ -55,29 +55,20 @@ h1{ color:#fff; letter-spacing:2px; }
 .photo.show img{ opacity:1; transform:translateY(0); }
 .photo.final img{ box-shadow:0 0 40px rgba(255,120,160,.9); }
 
-/* BIG HEART */
+/* BIG HEART — SLOW */
 .big-heart{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%) scale(.25);
-  font-size:74px;
+  font-size:78px;
   opacity:0;
   pointer-events:none;
   filter:
     drop-shadow(0 0 35px rgba(255,90,140,1))
     drop-shadow(0 0 90px rgba(255,90,140,1));
-  animation:heartPop 1.9s cubic-bezier(.2,.7,.2,1) forwards;
+  animation:heartPop 3.2s cubic-bezier(.18,.75,.2,1) forwards;
   z-index:5;
-}
-
-/* SPARKLES (FINAL PHOTO) */
-.sparkle{
-  position:absolute;
-  font-size:10px;
-  opacity:.9;
-  pointer-events:none;
-  filter:drop-shadow(0 0 6px rgba(255,180,200,.9));
 }
 
 /* SMALL HEARTS */
@@ -98,8 +89,7 @@ h1{ color:#fff; letter-spacing:2px; }
   font-size:14px;
   pointer-events:none;
   z-index:1;
-  filter:
-    drop-shadow(0 0 10px rgba(255,90,140,.9));
+  filter:drop-shadow(0 0 10px rgba(255,90,140,.9));
 }
 
 /* ENDING */
@@ -113,11 +103,24 @@ h1{ color:#fff; letter-spacing:2px; }
 #typedText{ white-space:pre-line; font-size:20px; }
 #since{ margin-top:12px; font-size:14px; opacity:.85; }
 
+/* HEART ANIMATION — SLOW & HELD */
 @keyframes heartPop{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.25);}
-  40%{opacity:1;transform:translate(-50%,-50%) scale(1.15);}
-  70%{opacity:1;transform:translate(-50%,-50%) scale(1.25);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(1.5);}
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.25);
+  }
+  30%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.05);
+  }
+  65%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.18);
+  }
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(1.45);
+  }
 }
 </style>
 </head>
@@ -126,6 +129,7 @@ h1{ color:#fff; letter-spacing:2px; }
 
 <div class="container">
 <h1>I love you.</h1>
+
 <div id="gallery"></div>
 
 <div class="ending" id="ending">
@@ -167,37 +171,29 @@ function build(){
   }
 }
 
-/* HEART SYNCED TO BEAT */
+/* HEART */
 function trySpecial(photo,index){
   if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
 
   const r=photo.getBoundingClientRect();
-  const center=r.top<innerHeight*.5 && r.bottom>innerHeight*.5;
-  if(!center) return;
+  if(!(r.top<innerHeight*.5 && r.bottom>innerHeight*.5)) return;
 
   photo.dataset.done=1;
 
-  const delay = BEAT - (performance.now() % BEAT);
+  const big=document.createElement("div");
+  big.className="big-heart";
+  big.textContent="❤️";
+  photo.appendChild(big);
 
   setTimeout(()=>{
-    const big=document.createElement("div");
-    big.className="big-heart";
-    big.textContent="❤️";
-    photo.appendChild(big);
+    for(let i=0;i<20;i++){
+      setTimeout(()=>spawnFountain(photo), i*45);
+    }
+  },900);
 
-    setTimeout(()=>{
-      if(photo.classList.contains("final")){
-        dissolveSparkles(photo);
-      }else{
-        for(let i=0;i<18;i++) spawnFountain(photo);
-      }
-    },700);
-
-    setTimeout(()=>big.remove(),2000);
-  },delay);
+  setTimeout(()=>big.remove(),3400);
 }
 
-/* FOUNTAIN */
 function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
@@ -212,32 +208,10 @@ function spawnFountain(parent){
     {transform:"translate(0,0)",opacity:1},
     {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-60}px)`},
     {transform:`translate(${Math.cos(a)*d*1.2}px,260px)`,opacity:0}
-  ],{duration:2600,easing:"cubic-bezier(.2,.8,.2,1)"});
+  ],{duration:2800,easing:"cubic-bezier(.2,.8,.2,1)"});
 
   parent.appendChild(h);
-  setTimeout(()=>h.remove(),3000);
-}
-
-/* FINAL SPARKLES */
-function dissolveSparkles(photo){
-  for(let i=0;i<22;i++){
-    const s=document.createElement("div");
-    s.className="sparkle";
-    s.textContent="✦";
-    s.style.left="50%";
-    s.style.top="50%";
-    photo.appendChild(s);
-
-    const a=Math.random()*Math.PI*2;
-    const d=40+Math.random()*60;
-
-    s.animate([
-      {transform:"translate(0,0)",opacity:.9},
-      {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`,opacity:0}
-    ],{duration:1800,easing:"ease-out"});
-
-    setTimeout(()=>s.remove(),2000);
-  }
+  setTimeout(()=>h.remove(),3200);
 }
 
 /* AMBIENT */
@@ -249,8 +223,8 @@ function startAmbient(){
     h.textContent="💖";
     h.style.left=Math.random()*innerWidth+"px";
     document.body.appendChild(h);
-    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5000});
-    setTimeout(()=>h.remove(),5200);
+    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5200});
+    setTimeout(()=>h.remove(),5400);
   },BEAT);
 }
 
@@ -261,8 +235,11 @@ function typeNext(){
   if(li>=lines.length) return;
   typedText.innerHTML+=lines[li][ci]||"";
   ci++;
-  if(ci>lines[li].length){ typedText.innerHTML+="\n"; li++; ci=0; setTimeout(typeNext,600);}
-  else setTimeout(typeNext,70);
+  if(ci>lines[li].length){
+    typedText.innerHTML+="\n";
+    li++; ci=0;
+    setTimeout(typeNext,700);
+  }else setTimeout(typeNext,80);
 }
 
 /* SINCE */
@@ -286,9 +263,10 @@ function start(){
 
   let v=0;
   const fade=setInterval(()=>{
-    v+=0.08; music.volume=Math.min(v,1);
+    v+=0.06;
+    music.volume=Math.min(v,1);
     if(v>=1) clearInterval(fade);
-  },80);
+  },90);
 
   startAmbient();
   updateSince();
