@@ -30,7 +30,6 @@ body::after{
   inset:0;
   background:rgba(0,0,0,.35);
   z-index:-1;
-  transition:opacity .6s ease;
 }
 
 .container{
@@ -56,19 +55,19 @@ h1{ color:#fff; letter-spacing:2px; }
 .photo.show img{ opacity:1; transform:translateY(0); }
 .photo.final img{ box-shadow:0 0 40px rgba(255,120,160,.9); }
 
-/* BIG HEART */
+/* BIG HEART (SLOWED & SOFTENED) */
 .big-heart{
   position:absolute;
   left:50%;
   top:50%;
-  transform:translate(-50%,-50%) scale(.3);
-  font-size:80px;
+  transform:translate(-50%,-50%) scale(.25);
+  font-size:74px;
   opacity:0;
   pointer-events:none;
   filter:
     drop-shadow(0 0 35px rgba(255,90,140,1))
     drop-shadow(0 0 90px rgba(255,90,140,1));
-  animation:heartPop 1.2s forwards;
+  animation:heartPop 1.9s cubic-bezier(.2,.7,.2,1) forwards;
   z-index:5;
 }
 
@@ -84,7 +83,7 @@ h1{ color:#fff; letter-spacing:2px; }
     drop-shadow(0 0 26px rgba(255,90,140,5));
 }
 
-/* AMBIENT HEARTS — BLACK GLOW */
+/* AMBIENT HEARTS */
 .ambient-heart{
   position:fixed;
   top:-30px;
@@ -109,10 +108,24 @@ h1{ color:#fff; letter-spacing:2px; }
 #since{ margin-top:12px; font-size:14px; opacity:.85; }
 #secret{ display:none; margin-top:28px; font-size:18px; color:#ffdbe8; }
 
+/* HEART ANIMATION (SOFTER TIMING) */
 @keyframes heartPop{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
-  45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(1.8);}
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.25);
+  }
+  40%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.15);
+  }
+  70%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.25);
+  }
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(1.5);
+  }
 }
 </style>
 </head>
@@ -134,25 +147,22 @@ h1{ color:#fff; letter-spacing:2px; }
 </div>
 
 <script>
-/* ================= CORE STATE ================= */
-let started = false;
-const TOTAL = 23;
-const SPECIAL = [3,14,19,21];
-const BPM = 72;
-const BEAT = 60000 / BPM;
+let started=false;
+const TOTAL=23;
+const SPECIAL=[3,14,19,21];
+const BPM=72;
+const BEAT=60000/BPM;
 
-/* ================= ELEMENTS ================= */
-const gallery = document.getElementById("gallery");
-const music = document.getElementById("music");
-const ending = document.getElementById("ending");
-const typedText = document.getElementById("typedText");
-const sinceEl = document.getElementById("since");
-const secret = document.getElementById("secret");
+const gallery=document.getElementById("gallery");
+const music=document.getElementById("music");
+const ending=document.getElementById("ending");
+const typedText=document.getElementById("typedText");
+const sinceEl=document.getElementById("since");
+const secret=document.getElementById("secret");
 
-/* ================= DATE ================= */
-const sinceDate = new Date("2023-12-19T22:10:00");
+const sinceDate=new Date("2023-12-19T22:10:00");
 
-/* ================= BUILD ================= */
+/* BUILD */
 function build(){
   gallery.innerHTML="";
   for(let i=1;i<=TOTAL;i++){
@@ -168,12 +178,12 @@ function build(){
   }
 }
 
-/* ================= SPECIAL HEART ================= */
+/* SPECIAL HEART */
 function trySpecial(photo,index){
-  if(!started || photo.dataset.done || !SPECIAL.includes(index)) return;
+  if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
 
   const r=photo.getBoundingClientRect();
-  const center = r.top < innerHeight*.5 && r.bottom > innerHeight*.5;
+  const center=r.top<innerHeight*.5 && r.bottom>innerHeight*.5;
 
   if(center){
     setTimeout(()=>{
@@ -184,16 +194,16 @@ function trySpecial(photo,index){
 
       const big=document.createElement("div");
       big.className="big-heart";
-      big.textContent="💗";
+      big.textContent="❤️";
       photo.appendChild(big);
 
       setTimeout(()=>{
         for(let i=0;i<26;i++){
-          setTimeout(()=>spawnFountain(photo), i*30);
+          setTimeout(()=>spawnFountain(photo),i*30);
         }
-      },300);
+      },350);
 
-      setTimeout(()=>big.remove(),1200);
+      setTimeout(()=>big.remove(),2000);
     },150);
   }
 }
@@ -201,7 +211,7 @@ function trySpecial(photo,index){
 function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
-  h.textContent="💖";
+  h.textContent="❤️";
   h.style.left="50%";
   h.style.top="50%";
 
@@ -218,13 +228,13 @@ function spawnFountain(parent){
   setTimeout(()=>h.remove(),3400);
 }
 
-/* ================= AMBIENT HEARTS ================= */
+/* AMBIENT HEARTS */
 function startAmbient(){
   setInterval(()=>{
     if(!started) return;
     const h=document.createElement("div");
     h.className="ambient-heart";
-    h.textContent="❤️";
+    h.textContent="💖";
     h.style.left=Math.random()*innerWidth+"px";
     document.body.appendChild(h);
 
@@ -237,16 +247,7 @@ function startAmbient(){
   },BEAT);
 }
 
-/* ================= BREATHING ================= */
-function startBreathing(){
-  let dim=false;
-  setInterval(()=>{
-    document.body.style.setProperty("--pulse", dim?".35":".45");
-    dim=!dim;
-  },BEAT);
-}
-
-/* ================= TYPEWRITER ================= */
+/* TYPEWRITER */
 const lines=["Two years.","Still us.","Always you."];
 let li=0,ci=0;
 function typeNext(){
@@ -255,12 +256,12 @@ function typeNext(){
   ci++;
   if(ci>lines[li].length){
     typedText.innerHTML+="\n";
-    li++; ci=0;
+    li++;ci=0;
     setTimeout(typeNext,600);
   }else setTimeout(typeNext,70);
 }
 
-/* ================= SINCE COUNTER ================= */
+/* SINCE */
 function updateSince(){
   const d=Math.floor((Date.now()-sinceDate)/1000);
   const days=Math.floor(d/86400);
@@ -270,7 +271,7 @@ function updateSince(){
   sinceEl.innerText=`Since Dec 19, 2023 10:10 PM — ${days}d ${h}:${m}:${s}`;
 }
 
-/* ================= START ================= */
+/* START */
 function startExperience(){
   if(started) return;
   started=true;
@@ -287,33 +288,18 @@ function startExperience(){
   },80);
 
   startAmbient();
-  startBreathing();
   updateSince();
   setInterval(updateSince,1000);
 
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 }
 
-/* ================= EVENTS ================= */
 document.body.addEventListener("click",startExperience,{once:true});
-
 window.addEventListener("scroll",()=>{
   if(!started) return;
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 },{passive:true});
 
-/* Easter eggs */
-let pressTimer=null;
-document.body.addEventListener("touchstart",()=>{
-  pressTimer=setTimeout(()=>secret.style.display="block",3000);
-});
-document.body.addEventListener("touchend",()=>clearTimeout(pressTimer));
-
-document.addEventListener("dblclick",e=>{
-  if(e.target.closest(".photo.final")) secret.style.display="block";
-});
-
-/* Ending */
 new IntersectionObserver(e=>{
   if(e[0].isIntersecting){
     ending.classList.add("show");
@@ -321,7 +307,6 @@ new IntersectionObserver(e=>{
   }
 },{threshold:.6}).observe(ending);
 
-/* INIT */
 build();
 </script>
 </body>
