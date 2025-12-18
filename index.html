@@ -52,10 +52,18 @@ h1{ color:#fff; letter-spacing:2px; }
   transform:translateY(40px);
   transition:opacity 1.3s ease, transform 1.3s ease;
 }
-.photo.show img{ opacity:1; transform:translateY(0); }
-.photo.final img{ box-shadow:0 0 40px rgba(255,120,160,.9); }
+.photo.show img{
+  opacity:1;
+  transform:translateY(0);
+}
 
-/* BIG HEART */
+/* GLOW FOR SPECIAL + FINAL */
+.photo.special img,
+.photo.final img{
+  box-shadow:0 0 40px rgba(255,120,160,.9);
+}
+
+/* BIG HEART — SLOWER */
 .big-heart{
   position:absolute;
   left:50%;
@@ -67,26 +75,8 @@ h1{ color:#fff; letter-spacing:2px; }
   filter:
     drop-shadow(0 0 35px rgba(255,90,140,1))
     drop-shadow(0 0 90px rgba(255,90,140,1));
-  animation:heartPop 3.2s cubic-bezier(.18,.75,.2,1) forwards;
+  animation:heartPop 2.4s cubic-bezier(.2,.7,.2,1) forwards;
   z-index:5;
-}
-
-/* INITIAL C */
-.initial{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%) scale(.6);
-  font-size:68px;
-  font-weight:600;
-  opacity:0;
-  color:#ffdbe8;
-  pointer-events:none;
-  filter:
-    drop-shadow(0 0 20px rgba(255,140,170,.9))
-    drop-shadow(0 0 50px rgba(255,140,170,.8));
-  animation:initialFade 3.8s ease forwards;
-  z-index:6;
 }
 
 /* SMALL HEARTS */
@@ -121,19 +111,26 @@ h1{ color:#fff; letter-spacing:2px; }
 #typedText{ white-space:pre-line; font-size:20px; }
 #since{ margin-top:12px; font-size:14px; opacity:.85; }
 
-/* ANIMATIONS */
-@keyframes heartPop{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.25);}
-  30%{opacity:1;transform:translate(-50%,-50%) scale(1.05);}
-  65%{opacity:1;transform:translate(-50%,-50%) scale(1.18);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(1.45);}
+/* EASTER EGG */
+#secret{
+  display:none;
+  margin-top:26px;
+  font-size:18px;
+  color:#ffdbe8;
+  opacity:0;
+  transition:opacity 1.5s ease;
+}
+#secret.show{
+  display:block;
+  opacity:1;
 }
 
-@keyframes initialFade{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.6);}
-  25%{opacity:1;transform:translate(-50%,-50%) scale(1);}
-  70%{opacity:1;}
-  100%{opacity:0;transform:translate(-50%,-60%) scale(1.05);}
+/* HEART ANIMATION */
+@keyframes heartPop{
+  0%   {opacity:0; transform:translate(-50%,-50%) scale(.25);}
+  35%  {opacity:1; transform:translate(-50%,-50%) scale(1.05);}
+  70%  {opacity:1; transform:translate(-50%,-50%) scale(1.25);}
+  100% {opacity:0; transform:translate(-50%,-50%) scale(1.5);}
 }
 </style>
 </head>
@@ -148,6 +145,7 @@ h1{ color:#fff; letter-spacing:2px; }
 <div class="ending" id="ending">
   <div id="typedText"></div>
   <div id="since"></div>
+  <div id="secret">Thank you for finding me… that means everything to me!</div>
 </div>
 
 <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
@@ -165,6 +163,7 @@ const music=document.getElementById("music");
 const ending=document.getElementById("ending");
 const typedText=document.getElementById("typedText");
 const sinceEl=document.getElementById("since");
+const secret=document.getElementById("secret");
 
 const sinceDate=new Date("2023-12-19T22:10:00");
 
@@ -174,6 +173,7 @@ function build(){
   for(let i=1;i<=TOTAL;i++){
     const p=document.createElement("div");
     p.className="photo";
+    if(SPECIAL.includes(i)) p.classList.add("special");
     if(i===TOTAL) p.classList.add("final");
     p.innerHTML=`<img src="image${i}.jpg">`;
     gallery.appendChild(p);
@@ -184,40 +184,28 @@ function build(){
   }
 }
 
-/* SPECIAL HEART */
+/* SPECIAL HEART — CENTER + 0.40s DELAY */
 function trySpecial(photo,index){
   if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
 
   const r=photo.getBoundingClientRect();
-  if(!(r.top<innerHeight*.5 && r.bottom>innerHeight*.5)) return;
+  const centered = r.top < innerHeight*0.45 && r.bottom > innerHeight*0.55;
+  if(!centered) return;
 
   photo.dataset.done=1;
 
-  const big=document.createElement("div");
-  big.className="big-heart";
-  big.textContent="❤️";
-  photo.appendChild(big);
-
   setTimeout(()=>{
-    if(photo.classList.contains("final")){
-      showInitial(photo);
-    }else{
-      for(let i=0;i<20;i++){
-        setTimeout(()=>spawnFountain(photo), i*45);
-      }
-    }
-  },1100);
+    const big=document.createElement("div");
+    big.className="big-heart";
+    big.textContent="❤️";
+    photo.appendChild(big);
 
-  setTimeout(()=>big.remove(),3300);
-}
+    setTimeout(()=>{
+      for(let i=0;i<18;i++) spawnFountain(photo);
+    },900);
 
-/* INITIAL C */
-function showInitial(photo){
-  const c=document.createElement("div");
-  c.className="initial";
-  c.textContent="C";
-  photo.appendChild(c);
-  setTimeout(()=>c.remove(),4200);
+    setTimeout(()=>big.remove(),2600);
+  },400);
 }
 
 /* FOUNTAIN */
@@ -235,10 +223,10 @@ function spawnFountain(parent){
     {transform:"translate(0,0)",opacity:1},
     {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-60}px)`},
     {transform:`translate(${Math.cos(a)*d*1.2}px,260px)`,opacity:0}
-  ],{duration:2800,easing:"cubic-bezier(.2,.8,.2,1)"});
+  ],{duration:2600,easing:"cubic-bezier(.2,.8,.2,1)"});
 
   parent.appendChild(h);
-  setTimeout(()=>h.remove(),3200);
+  setTimeout(()=>h.remove(),3000);
 }
 
 /* AMBIENT */
@@ -250,8 +238,8 @@ function startAmbient(){
     h.textContent="💖";
     h.style.left=Math.random()*innerWidth+"px";
     document.body.appendChild(h);
-    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5200});
-    setTimeout(()=>h.remove(),5400);
+    h.animate([{transform:"translateY(0)"},{transform:`translateY(${innerHeight+120}px)`}],{duration:5000});
+    setTimeout(()=>h.remove(),5200);
   },BEAT);
 }
 
@@ -265,8 +253,8 @@ function typeNext(){
   if(ci>lines[li].length){
     typedText.innerHTML+="\n";
     li++; ci=0;
-    setTimeout(typeNext,700);
-  }else setTimeout(typeNext,80);
+    setTimeout(typeNext,600);
+  }else setTimeout(typeNext,70);
 }
 
 /* SINCE */
@@ -290,10 +278,9 @@ function start(){
 
   let v=0;
   const fade=setInterval(()=>{
-    v+=0.06;
-    music.volume=Math.min(v,1);
+    v+=0.08; music.volume=Math.min(v,1);
     if(v>=1) clearInterval(fade);
-  },90);
+  },80);
 
   startAmbient();
   updateSince();
@@ -302,12 +289,21 @@ function start(){
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 }
 
+/* EVENTS */
 document.body.addEventListener("click",start,{once:true});
 window.addEventListener("scroll",()=>{
   if(!started) return;
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 },{passive:true});
 
+/* EASTER EGG — DOUBLE TAP FINAL PHOTO */
+document.addEventListener("dblclick",e=>{
+  if(e.target.closest(".photo.final")){
+    secret.classList.add("show");
+  }
+});
+
+/* ENDING */
 new IntersectionObserver(e=>{
   if(e[0].isIntersecting){
     ending.classList.add("show");
