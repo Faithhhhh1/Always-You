@@ -37,7 +37,7 @@ body::after{
   max-width:520px;
   padding:25px;
   background:rgba(255,255,255,.15);
-  backdrop-filter:blur(6px);
+  backdrop-filter:blur(5px);
   border-radius:18px;
   text-align:center;
 }
@@ -72,7 +72,7 @@ h1{ color:#fff; letter-spacing:2px; }
   z-index:5;
 }
 
-.small-heart{ position:absolute; font-size:16px; pointer-events:none; z-index:4; }
+.small-heart{ position:absolute; font-size:18px; pointer-events:none; z-index:5; }
 .ambient-heart{ position:fixed; top:-30px; font-size:14px; pointer-events:none; z-index:1; }
 
 /* OVERLAY */
@@ -110,14 +110,14 @@ h1{ color:#fff; letter-spacing:2px; }
 <div class="overlay" id="overlay"></div>
 
 <div class="container">
-<h1>I miss you.</h1>
+<h1>I love you.</h1>
 
 <div id="gallery"></div>
 
 <div class="ending" id="ending">
   <div id="typedText"></div>
   <div id="since"></div>
-  <div id="secret">You found this… and that means everything ❤️</div>
+  <div id="secret">I found you… and that means everything ❤️</div>
 </div>
 
 <audio id="music" src="song_v2.mp3" preload="auto" loop></audio>
@@ -141,7 +141,7 @@ const sinceEl = document.getElementById("since");
 const secret = document.getElementById("secret");
 
 /* ================= DATE SETUP ================= */
-const unlockTime = new Date("2023-12-19T00:00:00");
+const unlockTime = new Date("2025-12-19T00:00:00");
 const sinceDate  = new Date("2023-12-19T22:10:00");
 
 /* ================= BUILD PHOTOS ================= */
@@ -188,8 +188,8 @@ function spawnFountain(parent){
   const h=document.createElement("div");
   h.className="small-heart";
   h.textContent="❤️";
-  h.style.left="50%";
-  h.style.top="50%";
+  h.style.left="51%";
+  h.style.top="49%";
 
   const a=(Math.random()*Math.PI)-Math.PI/2;
   const d=90+Math.random()*90;
@@ -281,7 +281,7 @@ function initOverlay(){
   if(new Date()<unlockTime){
     overlay.innerText="Not yet… come back at midnight ❤️";
   }else{
-    overlay.innerText="Put on your earphones.\nTap anywhere.";
+    overlay.innerText="Put on your earphones babyyy.\nTap anywhere.";
   }
 }
 initOverlay();
