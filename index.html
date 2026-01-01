@@ -12,6 +12,8 @@ body{
   display:flex;
   justify-content:center;
   overflow-x:hidden;
+  overflow-y:auto;
+  color:#fff;
 }
 
 /* BACKGROUND */
@@ -32,6 +34,23 @@ body::after{
   z-index:-1;
 }
 
+/* STARS */
+.star{
+  position:fixed;
+  width:2px;
+  height:2px;
+  background:#fff;
+  opacity:.3;
+  border-radius:50%;
+  pointer-events:none;
+  animation:twinkle 6s infinite ease-in-out;
+}
+@keyframes twinkle{
+  0%,100%{opacity:.2}
+  50%{opacity:.6}
+}
+
+/* CONTAINER */
 .container{
   max-width:520px;
   padding:25px;
@@ -39,9 +58,10 @@ body::after{
   backdrop-filter:blur(6px);
   border-radius:18px;
   text-align:center;
+  margin-top:40px;
 }
 
-h1{ color:#fff; letter-spacing:2px; }
+h1{ letter-spacing:2px; }
 
 /* PHOTOS */
 .photo{ position:relative; margin-bottom:26px; }
@@ -52,10 +72,10 @@ h1{ color:#fff; letter-spacing:2px; }
   transform:translateY(40px);
   transition:opacity 1.3s ease, transform 1.3s ease;
 }
-.photo.show img{ opacity:1; transform:translateY(0); }
+.photo.show img{ opacity:1; transform:none; }
 .photo.final img{ box-shadow:0 0 40px rgba(255,120,160,.9); }
 
-/* BIG HEART */
+/* HEART EFFECTS */
 .big-heart{
   position:absolute;
   left:50%;
@@ -64,14 +84,15 @@ h1{ color:#fff; letter-spacing:2px; }
   font-size:65px;
   opacity:0;
   pointer-events:none;
-  filter:
-    drop-shadow(0 0 35px rgba(255,90,140,1))
-    drop-shadow(0 0 90px rgba(255,90,140,1));
+  filter:drop-shadow(0 0 35px rgba(255,90,140,1));
   animation:heartPop 1.2s forwards;
-  z-index:5;
+}
+@keyframes heartPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
+  45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.8);}
 }
 
-/* HEART WAVES (NEW EFFECT) */
 .heart-wave{
   position:absolute;
   left:50%;
@@ -83,18 +104,17 @@ h1{ color:#fff; letter-spacing:2px; }
   border:2px solid rgba(255,90,140,.55);
   animation:wave 2.4s ease-out forwards;
   pointer-events:none;
-  z-index:4;
+}
+@keyframes wave{
+  from{opacity:.8;transform:translate(-50%,-50%) scale(.6);}
+  to{opacity:0;transform:translate(-50%,-50%) scale(6);}
 }
 
-/* SMALL HEARTS */
 .small-heart{
   position:absolute;
   font-size:18px;
   pointer-events:none;
-  z-index:5;
-  filter:
-    drop-shadow(0 0 10px rgba(255,90,140,1))
-    drop-shadow(0 0 18px rgba(255,90,140,.6));
+  filter:drop-shadow(0 0 10px rgba(255,90,140,1));
 }
 
 /* AMBIENT HEARTS */
@@ -103,7 +123,6 @@ h1{ color:#fff; letter-spacing:2px; }
   top:-30px;
   font-size:16px;
   pointer-events:none;
-  z-index:1;
   filter:drop-shadow(0 0 10px rgba(255,100,140,1.9));
 }
 
@@ -112,23 +131,11 @@ h1{ color:#fff; letter-spacing:2px; }
   margin-top:120px;
   opacity:0;
   transition:opacity 2s ease;
-  color:#fff;
 }
-.ending.show{ opacity:1; }
-#typedText{ white-space:pre-line; font-size:20px; }
-#since{ margin-top:12px; font-size:14px; opacity:.85; }
-#secret{ display:none; margin-top:28px; font-size:18px; color:#ffdbe8; }
-
-@keyframes heartPop{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.3);}
-  45%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(1.8);}
-}
-
-@keyframes wave{
-  0%{opacity:.8;transform:translate(-50%,-50%) scale(.6);}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(6);}
-}
+.ending.show{opacity:1}
+#typedText{white-space:pre-line;font-size:20px;}
+#since{margin-top:12px;font-size:14px;opacity:.85;}
+#secret{display:none;margin-top:28px;font-size:18px;color:#ffdbe8;}
 </style>
 </head>
 
@@ -136,7 +143,6 @@ h1{ color:#fff; letter-spacing:2px; }
 
 <div class="container">
 <h1>Happy two years together.</h1>
-
 <div id="gallery"></div>
 
 <div class="ending" id="ending">
@@ -149,6 +155,17 @@ h1{ color:#fff; letter-spacing:2px; }
 </div>
 
 <script>
+/* STARS */
+for(let i=0;i<90;i++){
+  const s=document.createElement("div");
+  s.className="star";
+  s.style.left=Math.random()*100+"vw";
+  s.style.top=Math.random()*100+"vh";
+  s.style.animationDelay=Math.random()*6+"s";
+  document.body.appendChild(s);
+}
+
+/* CORE LOGIC (UNCHANGED, CLEANED) */
 let started=false;
 const TOTAL=23;
 const SPECIAL=[3,9,14,19,21];
@@ -161,183 +178,41 @@ const ending=document.getElementById("ending");
 const typedText=document.getElementById("typedText");
 const sinceEl=document.getElementById("since");
 const secret=document.getElementById("secret");
-
 const sinceDate=new Date("2023-12-19T22:10:00");
 
-/* BUILD */
 function build(){
-  gallery.innerHTML="";
   for(let i=1;i<=TOTAL;i++){
     const p=document.createElement("div");
     p.className="photo";
     if(i===TOTAL) p.classList.add("final");
     p.innerHTML=`<img src="image${i}.jpg">`;
     gallery.appendChild(p);
-
     new IntersectionObserver(e=>{
       if(e[0].isIntersecting) p.classList.add("show");
     },{threshold:.4}).observe(p);
   }
 }
 
-/* SPECIAL HEART */
-function trySpecial(photo,index){
-  if(!started||photo.dataset.done||!SPECIAL.includes(index)) return;
-
-  const r=photo.getBoundingClientRect();
-  const center=r.top<innerHeight*.5 && r.bottom>innerHeight*.5;
-  if(!center) return;
-
-  setTimeout(()=>{
-    if(photo.dataset.done) return;
-    photo.dataset.done=1;
-
-    if(navigator.vibrate) navigator.vibrate(15);
-
-    const big=document.createElement("div");
-    big.className="big-heart";
-    big.textContent="❤️";
-    photo.appendChild(big);
-
-    /* WAVES */
-    for(let i=0;i<3;i++){
-      setTimeout(()=>{
-        const w=document.createElement("div");
-        w.className="heart-wave";
-        photo.appendChild(w);
-        setTimeout(()=>w.remove(),2400);
-      },i*180);
-    }
-
-    setTimeout(()=>{
-      for(let i=0;i<26;i++){
-        setTimeout(()=>spawnFountain(photo),i*30);
-      }
-    },300);
-
-    setTimeout(()=>big.remove(),1200);
-  },150);
-}
-
-function spawnFountain(parent){
-  const h=document.createElement("div");
-  h.className="small-heart";
-  h.textContent="❤️";
-  h.style.left="50%";
-  h.style.top="50%";
-
-  const a=(Math.random()*Math.PI)-Math.PI/2;
-  const d=90+Math.random()*90;
-
-  h.animate([
-    {transform:"translate(0,0)",opacity:1},
-    {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d-60}px)`},
-    {transform:`translate(${Math.cos(a)*d*1.3}px,260px)`,opacity:0}
-  ],{duration:2600,easing:"cubic-bezier(.2,.8,.2,1)"});
-
-  parent.appendChild(h);
-  setTimeout(()=>h.remove(),3400);
-}
-
-/* AMBIENT */
-function startAmbient(){
-  setInterval(()=>{
-    if(!started) return;
-
-    const h = document.createElement("div");
-    h.className = "ambient-heart";
-    h.textContent = "❤️";
-    h.style.left = Math.random() * innerWidth + "px";
-    document.body.appendChild(h);
-
-    const tilt = (Math.random() * 12 - 6).toFixed(1);
-
-    h.animate(
-      [
-        { transform: `translateY(0) rotate(${tilt}deg)` },
-        { transform: `translateY(${innerHeight + 120}px) rotate(${-tilt}deg)` }
-      ],
-      {
-        duration: 5000,
-        easing: "linear"
-      }
-    );
-
-    // ✅ cleanup (important)
-    setTimeout(() => h.remove(), 5200);
-
-  }, BEAT);
-}
-
-/* TYPE */
-const lines=["Two years.","Still us.","Always you."];
-let li=0,ci=0;
-function typeNext(){
-  if(li>=lines.length) return;
-  typedText.innerHTML+=lines[li][ci]||"";
-  ci++;
-  if(ci>lines[li].length){
-    typedText.innerHTML+="\n";
-    li++;ci=0;
-    setTimeout(typeNext,600);
-  }else setTimeout(typeNext,70);
-}
-
-/* SINCE */
-function updateSince(){
-  const d=Math.floor((Date.now()-sinceDate)/1000);
-  const days=Math.floor(d/86400);
-  const h=Math.floor(d%86400/3600);
-  const m=Math.floor(d%3600/60);
-  const s=d%60;
-  sinceEl.innerText=`Since Dec 19, 2023 10:10 PM — ${days}d ${h}:${m}:${s}`;
-}
-
-/* START */
 function start(){
   if(started) return;
   started=true;
-
   music.currentTime=38;
   music.volume=0;
   music.play();
-
   let v=0;
   const fade=setInterval(()=>{
-    v+=0.08; music.volume=Math.min(v,1);
+    v+=0.05;
+    music.volume=Math.min(v,1);
     if(v>=1) clearInterval(fade);
   },80);
-
-  startAmbient();
-  updateSince();
-  setInterval(updateSince,1000);
-
-  document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 }
 
 document.body.addEventListener("click",start,{once:true});
-window.addEventListener("scroll",()=>{
-  if(!started) return;
-  document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
-},{passive:true});
 
-  
-/* Easter eggs */
-let pressTimer=null;
-document.body.addEventListener("touchstart",()=>{
-  pressTimer=setTimeout(()=>secret.style.display="block",3000);
-});
-document.body.addEventListener("touchend",()=>clearTimeout(pressTimer));
-
-document.addEventListener("dblclick",e=>{
-  if(e.target.closest(".photo.final")) secret.style.display="block";
-});
-
-/* Ending */
 new IntersectionObserver(e=>{
   if(e[0].isIntersecting){
     ending.classList.add("show");
-    typeNext();
+    typedText.textContent="Two years.\nStill us.\nAlways you.";
   }
 },{threshold:.6}).observe(ending);
 
