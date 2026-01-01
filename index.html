@@ -43,6 +43,22 @@ body::after{
 
 h1{ color:#fff; letter-spacing:2px; }
 
+/* STARS */
+.star{
+  position:fixed;
+  width:2px;
+  height:2px;
+  background:#fff;
+  opacity:.3;
+  border-radius:50%;
+  pointer-events:none;
+  animation:twinkle 6s infinite ease-in-out;
+}
+@keyframes twinkle{
+  0%,100%{opacity:.2}
+  50%{opacity:.6}
+}
+  
 /* PHOTOS */
 .photo{ position:relative; margin-bottom:26px; }
 .photo img{
@@ -321,32 +337,6 @@ window.addEventListener("scroll",()=>{
   document.querySelectorAll(".photo").forEach((p,i)=>trySpecial(p,i+1));
 },{passive:true});
 
-/* 🌌 NIGHT SKY */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:
-    radial-gradient(circle at 30% 20%, #0c1b3a 0%, transparent 60%),
-    radial-gradient(circle at 70% 80%, #040b1d 0%, #000 60%);
-  z-index:-10;
-}
-
-/* ⭐ STARS */
-.star{
-  position:fixed;
-  width:2px;
-  height:2px;
-  background:white;
-  opacity:.25;
-  border-radius:50%;
-  pointer-events:none;
-  animation: twinkle 6s infinite ease-in-out;
-}
-@keyframes twinkle{
-  0%,100%{opacity:.2}
-  50%{opacity:.6}
-}
   
 /* Easter eggs */
 let pressTimer=null;
@@ -358,22 +348,6 @@ document.body.addEventListener("touchend",()=>clearTimeout(pressTimer));
 document.addEventListener("dblclick",e=>{
   if(e.target.closest(".photo.final")) secret.style.display="block";
 });
-  
-/* STARS */
-.star{
-  position:fixed;
-  width:2px;
-  height:2px;
-  background:#fff;
-  opacity:.3;
-  border-radius:50%;
-  pointer-events:none;
-  animation:twinkle 6s infinite ease-in-out;
-}
-@keyframes twinkle{
-  0%,100%{opacity:.2}
-  50%{opacity:.6}
-}
   
 /* Ending */
 new IntersectionObserver(e=>{
